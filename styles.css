@@ -1,0 +1,201 @@
+:root {
+  --primary: #1a252f;
+  --accent: #e67e22; /* El Naranja de las barras */
+  --bg: #eef2f5;
+  --white: #ffffff;
+  --text: #333;
+  --shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+body {
+  font-family: 'Montserrat', sans-serif;
+  background-color: var(--bg);
+  margin: 0; padding: 0;
+  color: var(--text);
+}
+
+header {
+  background: var(--primary);
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+}
+
+.container { max-width: 1100px; margin: 0 auto; padding: 20px; }
+
+/* Paneles */
+.panel, .results-container, .esquema-section {
+  background: var(--white);
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: var(--shadow);
+  margin-bottom: 25px;
+}
+
+.panel-header {
+  border-bottom: 2px solid #f0f0f0;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+}
+
+.panel-header h2 { font-size: 18px; margin: 0; color: var(--primary); }
+
+/* Inputs */
+.panel-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.input-group label { display: block; font-weight: 600; font-size: 13px; margin-bottom: 5px; }
+.input-group input {
+  width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box;
+}
+
+.full-width { grid-column: 1 / -1; }
+.radio-group { display: flex; gap: 20px; background: #fafafa; padding: 10px; border-radius: 8px; }
+.radio-option { display: flex; align-items: center; font-size: 13px; }
+
+/* Grilla Resultados */
+.resultado {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.result-card {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background: #fff;
+  border-radius: 8px;
+  border-left: 5px solid var(--accent); /* Barra Naranja */
+  box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+}
+
+.card-icon { font-size: 20px; margin-right: 12px; }
+.card-details h3 { font-size: 11px; text-transform: uppercase; color: #777; margin: 0; }
+.card-details p { font-size: 18px; font-weight: 800; margin: 5px 0; color: var(--primary); }
+.card-details small { font-size: 10px; color: #999; }
+
+/* Canvas Area */
+.esquema-dual-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.canvas-wrapper { flex: 1; min-width: 280px; text-align: center; }
+.canvas-wrapper small { display: block; margin-bottom: 10px; font-weight: bold; color: #555; }
+canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
+
+.referencias { margin-top: 15px; text-align: center; font-size: 12px; }
+.ref-m { color: blue; margin-right: 15px; }
+.ref-ma { color: red; margin-right: 15px; }
+.ref-h { color: #27ae60; font-weight: bold; }
+.controles-esquema { text-align: center; margin-bottom: 15px; }
+#btnModo { 
+    background: var(--accent); color: white; border: none; 
+    padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold;
+}
+.ref-placa { color: rgba(200, 200, 200, 0.8); font-weight: bold; }
+
+.controles-dibujo {
+    text-align: center;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 15px; /* Espacio entre botones */
+}
+
+/* Estilo unificado para ambos botones */
+#btnModo, #btnPlacas {
+    background: var(--accent); /* Naranja por defecto */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px; /* Bordes redondeados como pediste */
+    cursor: pointer;
+    font-weight: 800;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    font-size: 12px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 180px;
+}
+
+/* Efecto al pasar el mouse */
+#btnModo:hover, #btnPlacas:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+}
+
+/* Clase para cuando el botón está activo (Azul oscuro) */
+.btn-active {
+    background: var(--primary) !important;
+}
+/* Estilos para la sección comercial */
+#previewLogo img {
+    width: 100%;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.full-width button {
+    margin: 5px;
+}
+/* --- ESTILOS COMPLEMENTARIOS PARA SECCIÓN COMERCIAL --- */
+
+/* Ajuste para que la imagen del logo no rompa el diseño */
+#previewLogo img {
+    max-width: 100px;
+    height: auto;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+    display: block;
+    margin-top: 10px;
+}
+
+/* Aplicamos la estética de tus botones naranja a los botones de PDF */
+.controles-dibujo button, 
+.full-width button {
+    background: var(--accent); /* Naranja */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 25px; /* Redondeado igual que los de arriba */
+    cursor: pointer;
+    font-weight: 800;
+    font-family: 'Montserrat', sans-serif;
+    text-transform: uppercase;
+    font-size: 11px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    min-width: 200px; /* Un poco más anchos para los textos de PDF */
+}
+
+/* Hover para los botones de PDF */
+.controles-dibujo button:hover,
+.full-width button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+    opacity: 0.9;
+}
+
+/* Ajuste de inputs dentro de la Sección 4 para que no se peguen */
+.panel-body .input-group {
+    margin-bottom: 5px;
+}
+
+/* Responsividad para los botones comerciales */
+@media (max-width: 600px) {
+    .controles-dibujo {
+        flex-direction: column;
+        align-items: center;
+    }
+    .full-width button {
+        width: 100%;
+    }
+}

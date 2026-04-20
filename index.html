@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Cielorrasos PRO</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <h1>Calculadora de Cielorrasos</h1>
+    <p>Cómputo métrico automático y visualización estructural</p>
+  </div>
+</header>
+
+<div class="container">
+  <div class="panel">
+    <div class="panel-header">
+      <h2>1. Dimensiones del Ambiente</h2>
+    </div>
+    <div class="panel-body">
+      <div class="input-group">
+        <label for="largo">Largo (m):</label>
+        <input type="number" id="largo" step="0.01" placeholder="0.00" oninput="calcular()">
+      </div>
+      <div class="input-group">
+        <label for="ancho">Ancho (m):</label>
+        <input type="number" id="ancho" step="0.01" placeholder="0.00" oninput="calcular()">
+      </div>
+      <div class="input-group">
+        <label for="distancia">Distancia al techo (m):</label>
+        <input type="number" id="distancia" step="0.01" placeholder="0.00" oninput="calcular()">
+      </div>
+      <div class="input-group full-width">
+        <label>Orientación de las Placas:</label>
+        <div class="radio-group">
+          <div class="radio-option">
+            <input type="radio" id="ori_montante" name="orientacion" value="montante" checked onchange="calcular()">
+            <label for="ori_montante">Paralela a Montantes (Azul)</label>
+          </div>
+          <div class="radio-option">
+            <input type="radio" id="ori_maestra" name="orientacion" value="maestra" onchange="calcular()">
+            <label for="ori_maestra">Paralela a Maestras (Rojo)</label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="results-container">
+    <div class="panel-header">
+      <h2>2. Lista de Materiales</h2>
+    </div>
+    <div id="resultado" class="resultado">
+      <div class="card result-card"><div class="card-icon">📏</div><div class="card-details"><h3>Superficie</h3><p id="m2">-</p><small>+10% desc.</small></div></div>
+      <div class="card result-card"><div class="card-icon">📄</div><div class="card-details"><h3>Placas</h3><p id="placas">-</p><small>1.20 x 2.40 m</small></div></div>
+      <div class="card result-card"><div class="card-icon">🚇</div><div class="card-details"><h3>Soleras</h3><p id="soleras">-</p><small>Perfiles 2.60 m</small></div></div>
+      <div class="card result-card"><div class="card-icon">🚇</div><div class="card-details"><h3>Montantes</h3><p id="montantes">-</p><small>Perfiles 2.60 m</small></div></div>
+      <div class="card result-card"><div class="card-icon">🚇</div><div class="card-details"><h3>Maestras</h3><p id="maestras">-</p><small>Perfiles 2.60 m</small></div></div>
+      <div class="card result-card"><div class="card-icon">🔩</div><div class="card-details"><h3>Tornillos T1</h3><p id="tornillosT1">-</p><small>Uniones estructura</small></div></div>
+      <div class="card result-card"><div class="card-icon">🔩</div><div class="card-details"><h3>Tornillos T2</h3><p id="tornillosT2">-</p><small>Fijación placa</small></div></div>
+      <div class="card result-card"><div class="card-icon">📍</div><div class="card-details"><h3>Fijaciones</h3><p id="tarugos">-</p><small>Tarugo + Torn. 6</small></div></div>
+      <div class="card result-card"><div class="card-icon">🥣</div><div class="card-details"><h3>Masilla S.R.</h3><p id="masillaSR">-</p><small>Secado Rápido</small></div></div>
+      <div class="card result-card"><div class="card-icon">🥣</div><div class="card-details"><h3>Masilla LPU</h3><p id="masillaLPU">-</p><small>Lista p/ usar</small></div></div>
+      <div class="card result-card"><div class="card-icon">🎗️</div><div class="card-details"><h3>Cinta Papel</h3><p id="cinta">-</p><small>Uniones reales</small></div></div>
+      <div class="card result-card"><div class="card-icon">🧶</div><div class="card-details"><h3>Alambre</h3><p id="alambre">-</p><small>Galvanizado</small></div></div>
+    </div>
+  </div>
+
+  <div class="esquema-section">
+    <div class="panel-header">
+      <h2>3. Esquema Estructural (2D y Proyección 3D)</h2>
+    </div>
+
+    <div class="esquema-dual-container">
+      <div class="canvas-wrapper">
+        <small>Vista en Planta (2D)</small>
+        <canvas id="canvas2d"></canvas>
+      </div>
+      <div class="canvas-wrapper">
+        <small>Estructura y Altura (3D)</small>
+        <canvas id="canvas3d"></canvas>
+      </div>
+    </div>
+    <div class="referencias">
+      <span class="ref-m">▬ Montantes</span>
+      <span class="ref-ma">▬ Maestras</span>
+      <span class="ref-h">▬ Distancia al Techo</span>
+    </div>
+    <div class="controles-dibujo">
+      <button id="btnPlacas" onclick="togglePlacas()">Ver con Placas</button>
+      <button id="btnModo" onclick="cambiarModo()">Modo: Cielorraso</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <div class="panel-header">
+      <h2>4. Gestión Comercial (PDF)</h2>
+    </div>
+    <div class="panel-body">
+      <div class="input-group">
+        <label>Logo de Empresa:</label>
+        <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="procesarLogo(this)">
+        <div id="previewLogo" style="margin-top:10px; max-width: 100px;"></div>
+      </div>
+      <div class="input-group">
+        <label>Nombre Empresa:</label>
+        <input type="text" id="nombreEmpresa" value="Construccion en Seco" placeholder="Tu Empresa">
+      </div>
+      <div class="input-group">
+        <label>Cliente:</label>
+        <input type="text" id="nombreCliente" placeholder="Nombre del cliente">
+      </div>
+      <div class="input-group">
+        <label>Precio Mano de Obra ($/m²):</label>
+        <input type="number" id="precioM2" placeholder="0.00" oninput="calcular()">
+      </div>
+      <div class="controles-dibujo full-width">
+        <button onclick="generarPDF('presupuesto')" style="background: #e67e22;">Generar Presupuesto</button>
+        <button onclick="generarPDF('compra')" style="background: #e67e22;">Orden de Compra</button>
+      </div>
+    </div>
+  </div>
+</div> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
+
+<script src="script.js"></script>
+
+</body>
+</html>
