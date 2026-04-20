@@ -33,7 +33,6 @@ function calcular() {
     let largoInput = document.getElementById("largo").value;
     let anchoInput = document.getElementById("ancho").value;
     const distVal = document.getElementById("distancia").value || 0;
-    const orientacion = document.querySelector('input[name="orientacion"]:checked').value;
 
     if (!largoInput || !anchoInput || largoInput <= 0 || anchoInput <= 0) {
         resetResultados();
@@ -43,7 +42,10 @@ function calcular() {
     // REGLA 1: El largo debe ser mayor que el ancho para optimizar
     let largo = parseFloat(largoInput);
     let ancho = parseFloat(anchoInput);
-    
+
+    let jLong = Math.floor(ancho / 1.2) * largo;
+    let jTrans = Math.floor(largo / 2.4) * ancho;
+
     if (ancho > largo) {
         let temp = largo;
         largo = ancho;
@@ -119,14 +121,6 @@ function calcular() {
     document.getElementById("masillaLPU").innerText = (m2Real * 0.9).toFixed(1) + " kg";
 
     // 6. CINTA Y ALAMBRE
-    let jLong, jTrans;
-    if (orientacion === "montante") {
-        jLong = Math.floor(ancho / 1.2) * largo;
-        jTrans = Math.floor(largo / 2.4) * ancho;
-    } else {
-        jLong = Math.floor(largo / 1.2) * ancho;
-        jTrans = Math.floor(ancho / 2.4) * largo;
-    }
     document.getElementById("cinta").innerText = ((jLong + jTrans) * 1.1).toFixed(1) + " m";
 
     // Alambre: Cruces * (altura + 0.40m de nudo)
@@ -392,8 +386,21 @@ window.addEventListener('resize', calcular);
 
 // Cargar vista previa del logo si ya existe
 window.onload = () => {
+    // Logo
     if (logoBase64) {
         document.getElementById('previewLogo').innerHTML = `<img src="${logoBase64}">`;
+    }
+
+    // Empresa
+    const empresaGuardada = localStorage.getItem('nombreEmpresa');
+    if (empresaGuardada) {
+        document.getElementById('nombreEmpresa').value = empresaGuardada;
+    }
+
+    // Precio
+    const precioGuardado = localStorage.getItem('precioM2');
+    if (precioGuardado) {
+        document.getElementById('precioM2').value = precioGuardado;
     }
 };
 
@@ -418,15 +425,29 @@ async function generarPDF(tipo) {
     const empresa = document.getElementById('nombreEmpresa').value || "Empresa";
     const cliente = document.getElementById('nombreCliente').value || "Consumidor Final";
     const fecha = new Date().toLocaleDateString();
-    const m2Text = document.getElementById('m2').innerText;
-    const m2Valor = parseFloat(m2Text) || 0;
+    const largo = parseFloat(document.getElementById("largo").value) || 0;
+    const ancho = parseFloat(document.getElementById("ancho").value) || 0;
+    const m2Valor = largo * ancho; // 👉 m2 REAL
     const precioM2 = parseFloat(document.getElementById('precioM2').value) || 0;
     const totalManoObra = m2Valor * precioM2;
-
     // Encabezado
-    if (logoBase64) {
-        doc.addImage(logoBase64, 'PNG', 15, 10, 30, 30);
-    }
+if (logoBase64) {
+    const img = new Image();
+    img.src = logoBase64;
+
+    const maxWidth = 30;
+    const maxHeight = 30;
+
+    let width = img.width;
+    let height = img.height;
+
+    const ratio = Math.min(maxWidth / width, maxHeight / height);
+
+    width *= ratio;
+    height *= ratio;
+
+    doc.addImage(logoBase64, 'PNG', 15, 10, width, height);
+}
     
     doc.setFontSize(18);
     doc.text(empresa, 50, 20);
@@ -464,13 +485,13 @@ async function generarPDF(tipo) {
         
         const materiales = [
             ["Material", "Cantidad", "Detalle"],
-            ["Placas de Yeso", document.getElementById('placas').innerText, "1.20 x 2.40 m"],
-            ["Soleras", document.getElementById('soleras').innerText, "Perfiles 2.60 m"],
-            ["Montantes", document.getElementById('montantes').innerText, "Perfiles 2.60 m"],
-            ["Maestras", document.getElementById('maestras').innerText, "Perfiles 2.60 m"],
-            ["Tornillos T1", document.getElementById('tornillosT1').innerText, "Uniones"],
-            ["Tornillos T2", document.getElementById('tornillosT2').innerText, "Para Placa"],
-            ["Fijaciones (Tarugo/Tornillo)", document.getElementById('tarugos').innerText, "N° 6"],
+            ["Placas de Yeso", document.getElementById('placas').innerText, "7mm, 1.20 x 2.40 m"],
+            ["Soleras", document.getElementById('soleras').innerText, "Perfiles 35mm x 2.60 m"],
+            ["Montantes", document.getElementById('montantes').innerText, "Perfiles 34mm x 2.60 m"],
+            ["Maestras", document.getElementById('maestras').innerText, "Perfiles 34mm x 2.60 m"],
+            ["Tornillos T1", document.getElementById('tornillosT1').innerText, "Punta aguja Z. 8 x 9/16 - 14mm"],
+            ["Tornillos T2", document.getElementById('tornillosT2').innerText, "Punta aguja Z. 6 x 1 - 25mm"],
+            ["Tarugo Nylon c/tope + Tornillo.", document.getElementById('tarugos').innerText, "N° 8 x 40mm"],
             ["Masilla Secado Rápido", document.getElementById('masillaSR').innerText, "-"],
             ["Masilla LPU", document.getElementById('masillaLPU').innerText, "-"],
             ["Cinta de Papel", document.getElementById('cinta').innerText, "Metros lineales"],
@@ -485,11 +506,11 @@ async function generarPDF(tipo) {
             headStyles: { fillColor: [41, 128, 185] }
         });
         
-        doc.setFontSize(10);
-        doc.setFont(undefined, 'italic');
-        doc.text("Nota: Cantidades calculadas con un 10% de desperdicio incluido.", 15, doc.lastAutoTable.finalY + 10);
     }
 
     doc.save(`${tipo}_${cliente.replace(/\s+/g, '_')}.pdf`);
 }
-
+function guardarDatos() {
+    localStorage.setItem('nombreEmpresa', document.getElementById('nombreEmpresa').value);
+    localStorage.setItem('precioM2', document.getElementById('precioM2').value);
+}

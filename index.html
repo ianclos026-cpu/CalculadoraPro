@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Calculadora de Cielorrasos PRO</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="style.css">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -33,19 +33,6 @@
       <div class="input-group">
         <label for="distancia">Distancia al techo (m):</label>
         <input type="number" id="distancia" step="0.01" placeholder="0.00" oninput="calcular()">
-      </div>
-      <div class="input-group full-width">
-        <label>Orientación de las Placas:</label>
-        <div class="radio-group">
-          <div class="radio-option">
-            <input type="radio" id="ori_montante" name="orientacion" value="montante" checked onchange="calcular()">
-            <label for="ori_montante">Paralela a Montantes (Azul)</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" id="ori_maestra" name="orientacion" value="maestra" onchange="calcular()">
-            <label for="ori_maestra">Paralela a Maestras (Rojo)</label>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -108,7 +95,7 @@
       </div>
       <div class="input-group">
         <label>Nombre Empresa:</label>
-        <input type="text" id="nombreEmpresa" value="Construccion en Seco" placeholder="Tu Empresa">
+        <input type="text" id="nombreEmpresa" placeholder="Tu Empresa" oninput="guardarDatos()">
       </div>
       <div class="input-group">
         <label>Cliente:</label>
@@ -116,7 +103,7 @@
       </div>
       <div class="input-group">
         <label>Precio Mano de Obra ($/m²):</label>
-        <input type="number" id="precioM2" placeholder="0.00" oninput="calcular()">
+        <input type="number" id="precioM2" placeholder="0.00" oninput="guardarDatos(); calcular()">
       </div>
       <div class="controles-dibujo full-width">
         <button onclick="generarPDF('presupuesto')" style="background: #e67e22;">Generar Presupuesto</button>
