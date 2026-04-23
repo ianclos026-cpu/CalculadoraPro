@@ -462,7 +462,7 @@ if (logoBase64) {
         doc.text("PRESUPUESTO DE MANO DE OBRA", 15, 55);
         
         const tablaData = [
-            ["Descripción", "Cantidad", "Precio Unit.", "Subtotal"],
+            ["Descripción", "Cantidad", "Precio m²", "Subtotal"],
             [`Mano de obra revestimiento (m²)`, `${m2Valor.toFixed(2)} m²`, `$ ${precioM2}`, `$ ${totalManoObra.toFixed(2)}`]
         ];
 
@@ -485,16 +485,16 @@ if (logoBase64) {
         
         const materiales = [
             ["Material", "Cantidad", "Detalle"],
-            ["Placas de Yeso", document.getElementById('placas').innerText, "7mm, 1.20 x 2.40 m"],
+            ["Placas de Yeso", document.getElementById('placas').innerText, "Estandar, 1.20 x 2.40 m"],
             ["Soleras", document.getElementById('soleras').innerText, "Perfiles 35mm x 2.60 m"],
             ["Montantes", document.getElementById('montantes').innerText, "Perfiles 34mm x 2.60 m"],
             ["Maestras", document.getElementById('maestras').innerText, "Perfiles 34mm x 2.60 m"],
-            ["Tornillos T1", document.getElementById('tornillosT1').innerText, "Punta aguja Z. 8 x 9/16 - 14mm"],
-            ["Tornillos T2", document.getElementById('tornillosT2').innerText, "Punta aguja Z. 6 x 1 - 25mm"],
-            ["Tarugo Nylon c/tope + Tornillo.", document.getElementById('tarugos').innerText, "N° 8 x 40mm"],
+            ["Tornillos T1", document.getElementById('tornillosT1').innerText, ""],
+            ["Tornillos T2", document.getElementById('tornillosT2').innerText, ""],
+            ["Tarugo Nylon c/tope + Tornillo.", document.getElementById('tarugos').innerText, "N° 6"],
             ["Masilla Secado Rápido", document.getElementById('masillaSR').innerText, "-"],
             ["Masilla LPU", document.getElementById('masillaLPU').innerText, "-"],
-            ["Cinta de Papel", document.getElementById('cinta').innerText, "Metros lineales"],
+            ["Cinta Tramada", document.getElementById('cinta').innerText, "Metros lineales"],
             ["Alambre Galvanizado", document.getElementById('alambre').innerText, "Metros lineales"]
         ];
 
