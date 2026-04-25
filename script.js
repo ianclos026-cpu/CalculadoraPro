@@ -118,7 +118,11 @@ function calcular() {
     document.getElementById("tarugos").innerText = Math.ceil(metrosSoleraBase * 3.85);
 
     document.getElementById("masillaSR").innerText = (m2Real * 0.45).toFixed(1) + " kg";
-    document.getElementById("masillaLPU").innerText = (m2Real * 0.9).toFixed(1) + " kg";
+    let kgLPU = m2Real * 0.9;
+    let detalleLPU = calcularMasillaLPU(kgLPU);
+
+    document.getElementById("masillaLPU").innerText = kgLPU.toFixed(1) + " kg";
+    document.getElementById("masillaLPU").setAttribute("data-detalle", detalleLPU);
 
     // 6. CINTA Y ALAMBRE
     document.getElementById("cinta").innerText = ((jLong + jTrans) * 1.1).toFixed(1) + " m";
@@ -131,6 +135,54 @@ function calcular() {
     // --- DIBUJOS ---
     dibujar2D(largo, ancho, lineasM, posicionesMaestras);
     dibujar3D(largo, ancho, lineasM, posicionesMaestras, h);
+}
+function calcularMasillaLPU(kgNecesarios) {
+    const envases = [
+        { tipo: "Balde 32 kg", kg: 32 },
+        { tipo: "Bolsa 25 kg", kg: 25 },
+        { tipo: "Caja 22 kg", kg: 22 },
+        { tipo: "Balde 18 kg", kg: 18 },
+        { tipo: "Balde 7 kg", kg: 7 },
+        { tipo: "Bolsa 1.8 kg", kg: 1.8 }
+    ];
+
+    let mejorSolucion = null;
+    let menorSobrante = Infinity;
+
+    function buscar(index, kgActual, combinacion) {
+        if (kgActual >= kgNecesarios) {
+            let sobrante = kgActual - kgNecesarios;
+            if (sobrante < menorSobrante) {
+                menorSobrante = sobrante;
+                mejorSolucion = { ...combinacion };
+            }
+            return;
+        }
+
+        if (index >= envases.length) return;
+
+        let env = envases[index];
+
+        // Probamos usar desde 0 hasta N unidades de este envase
+        for (let i = 0; i <= Math.ceil(kgNecesarios / env.kg) + 2; i++) {
+            combinacion[env.tipo] = i;
+            buscar(index + 1, kgActual + i * env.kg, combinacion);
+        }
+
+        combinacion[env.tipo] = 0;
+    }
+
+    buscar(0, 0, {});
+
+    // Generar texto final
+    let detalle = [];
+    for (let key in mejorSolucion) {
+        if (mejorSolucion[key] > 0) {
+            detalle.push(`${mejorSolucion[key]} x ${key}`);
+        }
+    }
+
+    return detalle.join(" + ");
 }
 
 function resetResultados() {
@@ -489,11 +541,11 @@ if (logoBase64) {
             ["Soleras", document.getElementById('soleras').innerText, "Perfiles 35mm x 2.60 m"],
             ["Montantes", document.getElementById('montantes').innerText, "Perfiles 34mm x 2.60 m"],
             ["Maestras", document.getElementById('maestras').innerText, "Perfiles 34mm x 2.60 m"],
-            ["Tornillos T1", document.getElementById('tornillosT1').innerText, ""],
-            ["Tornillos T2", document.getElementById('tornillosT2').innerText, ""],
+            ["Tornillos T1", document.getElementById('tornillosT1').innerText, "-"],
+            ["Tornillos T2", document.getElementById('tornillosT2').innerText, "-"],
             ["Tarugo Nylon c/tope + Tornillo.", document.getElementById('tarugos').innerText, "N° 6"],
             ["Masilla Secado Rápido", document.getElementById('masillaSR').innerText, "-"],
-            ["Masilla LPU", document.getElementById('masillaLPU').innerText, "-"],
+            ["Masilla LPU", document.getElementById('masillaLPU').innerText, document.getElementById('masillaLPU').getAttribute("data-detalle") || "Calcular"],
             ["Cinta Tramada", document.getElementById('cinta').innerText, "Metros lineales"],
             ["Alambre Galvanizado", document.getElementById('alambre').innerText, "Metros lineales"]
         ];
