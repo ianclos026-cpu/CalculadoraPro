@@ -34,6 +34,14 @@
         <label for="distancia">Distancia al techo (m):</label>
         <input type="number" id="distancia" step="0.01" placeholder="0.00" oninput="calcular()">
       </div>
+      <div class="input-group">
+  <label>Nombre del Subtrabajo:</label>
+  <input type="text" id="nombreSub" placeholder="Ej: Cocina">
+      </div>
+      <div class="controles-dibujo full-width">
+        <button onclick="agregarSubTrabajo()">Agregar Subtrabajo</button>
+      </div>
+      <div id="listaSubtrabajos"></div>
     </div>
   </div>
 
