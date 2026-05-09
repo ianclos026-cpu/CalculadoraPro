@@ -2,7 +2,8 @@
 let logoBase64 = localStorage.getItem('logoEmpresa') || "";
 let modoPared = false;
 let mostrarPlacas = false;
-
+let subTrabajos = [];
+let ultimoResultado = null;
 
 function cambiarModo() {
     modoPared = !modoPared;
@@ -135,6 +136,22 @@ function calcular() {
     // --- DIBUJOS ---
     dibujar2D(largo, ancho, lineasM, posicionesMaestras);
     dibujar3D(largo, ancho, lineasM, posicionesMaestras, h);
+    
+    ultimoResultado = {
+    m2: m2Real, // 👈 REAL (correcto para presupuesto)
+    placas: Math.ceil(m2Final / 2.88),
+    soleras: Math.ceil((metrosSoleraBase + metrosRefuerzoSolera) / 2.6),
+    montantes: Math.ceil(metrosMontanteTotal / 2.6),
+    maestras: Math.ceil((maestras * largo) / 2.6),
+    tornillosT1: Math.ceil(tornillosT1Maestras + tornillosT1Montantes),
+    tornillosT2: Math.ceil(m2Final * 21),
+    tarugos: Math.ceil(metrosSoleraBase * 3.85),
+    masillaSR: m2Real * 0.45,
+    masillaLPUkg: kgLPU,
+    masillaLPUdetalle: detalleLPU,
+    cinta: (jLong + jTrans) * 1.1,
+    alambre: metrosAlambre
+};
 }
 function calcularMasillaLPU(kgNecesarios) {
     const envases = [
@@ -513,15 +530,31 @@ if (logoBase64) {
         doc.setFontSize(14);
         doc.text("PRESUPUESTO DE MANO DE OBRA", 15, 55);
         
-        const tablaData = [
-            ["Descripción", "Cantidad", "Precio m²", "Subtotal"],
-            [`Mano de obra revestimiento (m²)`, `${m2Valor.toFixed(2)} m²`, `$ ${precioM2}`, `$ ${totalManoObra.toFixed(2)}`]
-        ];
+        let filas = [];
+
+        subTrabajos.forEach(st => {
+            filas.push([
+                st.nombre,
+                st.materiales.m2.toFixed(2) + " m²",
+                "$ " + precioM2,
+                "$ " + st.costo.toFixed(2)
+            ]);
+        });
+
+        // TOTAL
+        let totalFinal = subTrabajos.reduce((acc, st) => acc + st.costo, 0);
+
+        filas.push([
+            "TOTAL",
+            "",
+            "",
+            "$ " + totalFinal.toFixed(2)
+        ]);
 
         doc.autoTable({
             startY: 65,
-            head: [tablaData[0]],
-            body: [tablaData[1]],
+            head: [["Descripción", "Cantidad", "Precio m²", "Subtotal"]],
+            body: filas,
             theme: 'striped',
             headStyles: { fillColor: [230, 126, 34] }
         });
@@ -529,25 +562,27 @@ if (logoBase64) {
         const finalY = doc.lastAutoTable.finalY + 10;
         doc.setFontSize(12);
         doc.setFont(undefined, 'bold');
-        doc.text(`TOTAL PRESUPUESTO: $ ${totalManoObra.toFixed(2)}`, 195, finalY, { align: 'right' });
+        doc.text(`TOTAL PRESUPUESTO: $ ${totalFinal.toFixed(2)}`, 195, finalY, { align: 'right' });
 
     } else {
         doc.setFontSize(14);
         doc.text("ORDEN DE COMPRA DE MATERIALES", 15, 55);
         
+        let total = calcularTotales();
+
         const materiales = [
             ["Material", "Cantidad", "Detalle"],
-            ["Placas de Yeso", document.getElementById('placas').innerText, "Estandar, 1.20 x 2.40 m"],
-            ["Soleras", document.getElementById('soleras').innerText, "Perfiles 35mm x 2.60 m"],
-            ["Montantes", document.getElementById('montantes').innerText, "Perfiles 34mm x 2.60 m"],
-            ["Maestras", document.getElementById('maestras').innerText, "Perfiles 34mm x 2.60 m"],
-            ["Tornillos T1", document.getElementById('tornillosT1').innerText, "-"],
-            ["Tornillos T2", document.getElementById('tornillosT2').innerText, "-"],
-            ["Tarugo Nylon c/tope + Tornillo.", document.getElementById('tarugos').innerText, "N° 6"],
-            ["Masilla Secado Rápido", document.getElementById('masillaSR').innerText, "-"],
-            ["Masilla LPU", document.getElementById('masillaLPU').innerText, document.getElementById('masillaLPU').getAttribute("data-detalle") || "Calcular"],
-            ["Cinta Tramada", document.getElementById('cinta').innerText, "Metros lineales"],
-            ["Alambre Galvanizado", document.getElementById('alambre').innerText, "Metros lineales"]
+            ["Placas de Yeso", total.placas, "Estandar, 1.20 x 2.40 m"],
+            ["Soleras", total.soleras, "Perfiles 35mm x 2.60 m"],
+            ["Montantes", total.montantes, "Perfiles 34mm x 2.60 m"],
+            ["Maestras", total.maestras, "Perfiles 34mm x 2.60 m"],
+            ["Tornillos T1", total.tornillosT1, "-"],
+            ["Tornillos T2", total.tornillosT2, "-"],
+            ["Tarugo Nylon c/tope + Tornillo.", total.tarugos, "N° 6"],
+            ["Masilla Secado Rápido", total.masillaSR.toFixed(1) + " kg", "-"],
+            ["Masilla LPU", total.masillaLPU.toFixed(1) + " kg", total.masillaLPUdetalle],
+            ["Cinta Tramada", total.cinta.toFixed(1) + " m", "Metros lineales"],
+            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", "Metros lineales"]
         ];
 
         doc.autoTable({
@@ -565,4 +600,97 @@ if (logoBase64) {
 function guardarDatos() {
     localStorage.setItem('nombreEmpresa', document.getElementById('nombreEmpresa').value);
     localStorage.setItem('precioM2', document.getElementById('precioM2').value);
+}
+function agregarSubTrabajo() {
+
+    calcular(); // usa tu lógica actual
+
+    if (!ultimoResultado) return;
+
+    let nombre = document.getElementById("nombreSub").value || "Sin nombre";
+
+    let precioM2 = parseFloat(document.getElementById("precioM2").value) || 0;
+    let costo = ultimoResultado.m2 * precioM2;
+
+    subTrabajos.push({
+        nombre: nombre,
+        materiales: { ...ultimoResultado }, // 👈 CLAVE
+        detalles: {
+            masillaLPU: ultimoResultado.masillaLPUdetalle
+        },
+        costo: costo
+    });
+
+    renderSubTrabajos();
+}
+function renderSubTrabajos() {
+    const contenedor = document.getElementById("listaSubtrabajos");
+    contenedor.innerHTML = "";
+
+    subTrabajos.forEach((st, index) => {
+        contenedor.innerHTML += `
+            <div class="subtrabajo">
+                <button onclick="eliminarSubTrabajo(${index})">X</button>
+
+                <h3>${st.nombre}</h3>
+
+                <p><strong>${st.materiales.m2.toFixed(2)} m²</strong></p>
+                <p>$ ${st.costo.toFixed(0)}</p>
+
+                <div class="materiales-detalle">
+                    <small>Materiales:</small>
+                    <ul>
+                        <li>Placas: ${st.materiales.placas}</li>
+                        <li>Soleras: ${st.materiales.soleras}</li>
+                        <li>Montantes: ${st.materiales.montantes}</li>
+                        <li>Tornillos T1: ${st.materiales.tornillosT1}</li>
+                        <li>Tornillos T2: ${st.materiales.tornillosT2}</li>
+                        <li>Fijaciones: ${st.materiales.tarugos}</li>
+                    </ul>
+                </div>
+            </div>
+        `;
+    });
+}
+function calcularTotales() {
+    let total = {
+        m2: 0,
+        placas: 0,
+        soleras: 0,
+        montantes: 0,
+        maestras: 0,
+        tornillosT1: 0,
+        tornillosT2: 0,
+        tarugos: 0,
+        masillaSR: 0,
+        masillaLPU: 0,
+        cinta: 0,
+        alambre: 0
+    };
+
+    subTrabajos.forEach(st => {
+        let m = st.materiales;
+
+        total.m2 += m.m2;
+        total.placas += m.placas;
+        total.soleras += m.soleras;
+        total.montantes += m.montantes;
+        total.maestras += m.maestras;
+        total.tornillosT1 += m.tornillosT1;
+        total.tornillosT2 += m.tornillosT2;
+        total.tarugos += m.tarugos;
+        total.masillaSR += m.masillaSR;
+        total.masillaLPU += m.masillaLPUkg;
+        total.cinta += m.cinta;
+        total.alambre += m.alambre;
+    });
+
+    // 👇 reutilizás TU lógica existente
+    total.masillaLPUdetalle = calcularMasillaLPU(total.masillaLPU);
+
+    return total;
+}
+function eliminarSubTrabajo(index) {
+    subTrabajos.splice(index, 1);
+    renderSubTrabajos();
 }
