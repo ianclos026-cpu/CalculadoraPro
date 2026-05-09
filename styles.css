@@ -199,3 +199,86 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
         width: 100%;
     }
 }
+/* ===== SUBTRABAJOS ===== */
+
+#listaSubtrabajos {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 👈 3 columnas fijas */
+    gap: 15px;
+    margin-top: 15px;
+    width: 100%;
+    grid-column: 1 / -1
+}
+
+.subtrabajo {
+    background: var(--white);
+    border-radius: 12px;
+    padding: 15px;
+    box-shadow: var(--shadow);
+    position: relative;
+    border-left: 5px solid var(--accent);
+    transition: all 0.2s ease;
+    min-height: 180px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.subtrabajo:hover {
+    transform: translateY(-3px);
+}
+
+/* Título */
+.subtrabajo h3 {
+    margin: 0 0 10px 0;
+    font-size: 14px;
+    color: var(--primary);
+}
+
+/* Texto */
+.subtrabajo p {
+    margin: 3px 0;
+    font-size: 13px;
+}
+
+/* Botón eliminar */
+.subtrabajo button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 11px;
+}
+
+.subtrabajo button:hover {
+    background: #c0392b;
+}
+.subtrabajo p:nth-child(2) {
+    font-weight: bold;
+    color: var(--primary);
+}
+.materiales-detalle {
+    margin-top: 10px;
+    font-size: 12px;
+    background: #fafafa;
+    padding: 8px;
+    border-radius: 6px;
+}
+
+.materiales-detalle ul {
+    padding-left: 15px;
+    margin: 5px 0;
+}
+
+.materiales-detalle li {
+    margin-bottom: 2px;
+}
+.subtrabajo {
+    width: 100%;
+    box-sizing: border-box;
+}
