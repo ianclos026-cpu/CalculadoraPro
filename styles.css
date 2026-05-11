@@ -200,14 +200,18 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
     }
 }
 /* ===== SUBTRABAJOS ===== */
-
+@media (max-width: 600px) {
+    #listaSubtrabajos {
+        grid-template-columns: 1fr;
+    }
+}
 #listaSubtrabajos {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 👈 3 columnas fijas */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
     gap: 15px;
     margin-top: 15px;
     width: 100%;
-    grid-column: 1 / -1
+    grid-column: 1 / -1;
 }
 
 .subtrabajo {
@@ -218,7 +222,7 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
     position: relative;
     border-left: 5px solid var(--accent);
     transition: all 0.2s ease;
-    min-height: 180px;
+    min-height: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
