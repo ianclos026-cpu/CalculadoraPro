@@ -627,36 +627,31 @@ function agregarSubTrabajo() {
 }
 function renderSubTrabajos() {
     const contenedor = document.getElementById("listaSubtrabajos");
+    const template = document.getElementById("tpl-subtrabajo");
+
     contenedor.innerHTML = "";
 
     const precioM2 = parseFloat(document.getElementById("precioM2").value) || 0;
 
     subTrabajos.forEach((st, index) => {
 
+        const clone = template.content.cloneNode(true);
         const costo = st.materiales.m2 * precioM2;
 
-        contenedor.innerHTML += `
-            <div class="subtrabajo">
-                <button onclick="eliminarSubTrabajo(${index})">X</button>
+        clone.querySelector(".nombre").textContent = st.nombre;
+        clone.querySelector(".m2").textContent = `${st.materiales.m2.toFixed(2)} m²`;
+        clone.querySelector(".costo").textContent = `$ ${costo.toFixed(0)}`;
 
-                <h3>${st.nombre}</h3>
+        clone.querySelector(".placas").textContent = `Placas: ${st.materiales.placas}`;
+        clone.querySelector(".soleras").textContent = `Soleras: ${st.materiales.soleras}`;
+        clone.querySelector(".montantes").textContent = `Montantes: ${st.materiales.montantes}`;
+        clone.querySelector(".t1").textContent = `Tornillos T1: ${st.materiales.tornillosT1}`;
+        clone.querySelector(".t2").textContent = `Tornillos T2: ${st.materiales.tornillosT2}`;
+        clone.querySelector(".fijaciones").textContent = `Fijaciones: ${st.materiales.tarugos}`;
 
-                <p><strong>${st.materiales.m2.toFixed(2)} m²</strong></p>
-                <p><strong>$ ${costo.toFixed(0)}</strong></p>
+        clone.querySelector(".btn-eliminar").onclick = () => eliminarSubTrabajo(index);
 
-                <div class="materiales-detalle">
-                    <small>Materiales:</small>
-                    <ul>
-                        <li>Placas: ${st.materiales.placas}</li>
-                        <li>Soleras: ${st.materiales.soleras}</li>
-                        <li>Montantes: ${st.materiales.montantes}</li>
-                        <li>Tornillos T1: ${st.materiales.tornillosT1}</li>
-                        <li>Tornillos T2: ${st.materiales.tornillosT2}</li>
-                        <li>Fijaciones: ${st.materiales.tarugos}</li>
-                    </ul>
-                </div>
-            </div>
-        `;
+        contenedor.appendChild(clone);
     });
 }
 function calcularTotales() {
