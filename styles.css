@@ -202,12 +202,12 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
 /* ===== SUBTRABAJOS ===== */
 @media (max-width: 600px) {
     #listaSubtrabajos {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr; /* 👈 1 sola columna en celular */
     }
 }
 #listaSubtrabajos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    grid-template-columns: repeat(3, 1fr); /* 👈 3 columnas FIJAS en PC */
     gap: 15px;
     margin-top: 15px;
     width: 100%;
