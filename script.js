@@ -533,16 +533,21 @@ if (logoBase64) {
         let filas = [];
 
         subTrabajos.forEach(st => {
+
+            const subtotal = st.materiales.m2 * precioM2;
+
             filas.push([
                 st.nombre,
                 st.materiales.m2.toFixed(2) + " m²",
                 "$ " + precioM2,
-                "$ " + st.costo.toFixed(2)
+                "$ " + subtotal.toFixed(2)
             ]);
         });
 
         // TOTAL
-        let totalFinal = subTrabajos.reduce((acc, st) => acc + st.costo, 0);
+        let totalFinal = subTrabajos.reduce((acc, st) => {
+            return acc + (st.materiales.m2 * precioM2);
+        }, 0);
 
         filas.push([
             "TOTAL",
@@ -609,16 +614,13 @@ function agregarSubTrabajo() {
 
     let nombre = document.getElementById("nombreSub").value || "Sin nombre";
 
-    let precioM2 = parseFloat(document.getElementById("precioM2").value) || 0;
-    let costo = ultimoResultado.m2 * precioM2;
-
     subTrabajos.push({
         nombre: nombre,
         materiales: { ...ultimoResultado }, // 👈 CLAVE
         detalles: {
             masillaLPU: ultimoResultado.masillaLPUdetalle
         },
-        costo: costo
+        
     });
 
     renderSubTrabajos();
@@ -627,7 +629,12 @@ function renderSubTrabajos() {
     const contenedor = document.getElementById("listaSubtrabajos");
     contenedor.innerHTML = "";
 
+    const precioM2 = parseFloat(document.getElementById("precioM2").value) || 0;
+
     subTrabajos.forEach((st, index) => {
+
+        const costo = st.materiales.m2 * precioM2;
+
         contenedor.innerHTML += `
             <div class="subtrabajo">
                 <button onclick="eliminarSubTrabajo(${index})">X</button>
@@ -635,7 +642,7 @@ function renderSubTrabajos() {
                 <h3>${st.nombre}</h3>
 
                 <p><strong>${st.materiales.m2.toFixed(2)} m²</strong></p>
-                <p>$ ${st.costo.toFixed(0)}</p>
+                <p><strong>$ ${costo.toFixed(0)}</strong></p>
 
                 <div class="materiales-detalle">
                     <small>Materiales:</small>
