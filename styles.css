@@ -208,13 +208,12 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
 
 #listaSubtrabajos {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 👈 igual que resultado */
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); /* 👈 igual que resultado */
     gap: 15px;
     margin-top: 15px;
     width: 100%;
     grid-column: 1 / -1;
 }
-
 
 .subtrabajo {
     background: var(--white);
@@ -224,7 +223,6 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
     position: relative;
     border-left: 5px solid var(--accent);
     transition: all 0.2s ease;
-    min-height: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
