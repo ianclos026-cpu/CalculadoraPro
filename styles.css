@@ -202,17 +202,19 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
 /* ===== SUBTRABAJOS ===== */
 @media (max-width: 600px) {
     #listaSubtrabajos {
-        grid-template-columns: 1fr; /* 👈 1 sola columna en celular */
+        grid-template-columns: 1fr; /* 👈 se apilan en móvil */
     }
 }
+
 #listaSubtrabajos {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* 👈 3 columnas FIJAS en PC */
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); /* 👈 igual que resultado */
     gap: 15px;
     margin-top: 15px;
     width: 100%;
     grid-column: 1 / -1;
 }
+
 
 .subtrabajo {
     background: var(--white);
