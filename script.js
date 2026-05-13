@@ -488,6 +488,7 @@ function procesarLogo(input) {
 // ... (Mantén tus funciones cambiarModo, togglePlacas, calcular y dibujos igual) ...
 
 async function generarPDF(tipo) {
+    limpiarCamposSubTrabajo();
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
     
@@ -531,22 +532,21 @@ if (logoBase64) {
         doc.text("PRESUPUESTO DE MANO DE OBRA", 15, 55);
         
         let filas = [];
-
         subTrabajos.forEach(st => {
-
-            const subtotal = st.materiales.m2 * precioM2;
+            const subtotal = st.cantidad * st.precioUnitario;
+            const cantidadLabel = `${st.cantidad.toFixed(2)} ${st.unidad === 'm2' ? 'm²' : 'm.l.'}`;
+            const precioLabel = st.precioUnitario.toFixed(2) + " x " + (st.unidad === 'm2' ? 'm²' : 'm.l.');
 
             filas.push([
                 st.nombre,
-                st.materiales.m2.toFixed(2) + " m²",
-                "$ " + precioM2,
+                cantidadLabel,
+                "$ " + precioLabel,
                 "$ " + subtotal.toFixed(2)
             ]);
         });
 
-        // TOTAL
         let totalFinal = subTrabajos.reduce((acc, st) => {
-            return acc + (st.materiales.m2 * precioM2);
+            return acc + (st.cantidad * st.precioUnitario);
         }, 0);
 
         filas.push([
@@ -558,7 +558,7 @@ if (logoBase64) {
 
         doc.autoTable({
             startY: 65,
-            head: [["Descripción", "Cantidad", "Precio m²", "Subtotal"]],
+            head: [["Descripción", "Cantidad", "Precio x (m² o m.l.)", "Subtotal"]],
             body: filas,
             theme: 'striped',
             headStyles: { fillColor: [230, 126, 34] }
@@ -607,53 +607,233 @@ function guardarDatos() {
     localStorage.setItem('precioM2', document.getElementById('precioM2').value);
 }
 function agregarSubTrabajo() {
+    const manualNombre = document.getElementById("nombreManualSub").value.trim();
+    const manualCantidad = parseFloat(document.getElementById("cantidadManualSub").value) || 0;
+    const manualPrecio = parseFloat(document.getElementById("precioManualSub").value) || 0;
+    const manualMateriales = [
+        parseFloat(document.getElementById("matPlacas").value) || 0,
+        parseFloat(document.getElementById("matSoleras").value) || 0,
+        parseFloat(document.getElementById("matMontantes").value) || 0,
+        parseFloat(document.getElementById("matMaestras").value) || 0,
+        parseFloat(document.getElementById("matT1").value) || 0,
+        parseFloat(document.getElementById("matT2").value) || 0,
+        parseFloat(document.getElementById("matFijaciones").value) || 0,
+        parseFloat(document.getElementById("matMasillaSR").value) || 0,
+        parseFloat(document.getElementById("matMasillaLPU").value) || 0,
+        parseFloat(document.getElementById("matCinta").value) || 0,
+        parseFloat(document.getElementById("matAlambre").value) || 0
+    ];
+    const manualTieneMateriales = manualMateriales.some(valor => valor > 0);
+    const manualTieneDatos = manualTieneMateriales || (manualNombre && (manualCantidad > 0 || manualPrecio > 0));
 
-    calcular(); // usa tu lógica actual
+    if (manualTieneDatos) {
+        agregarSubTrabajoManual();
+        return;
+    }
 
-    if (!ultimoResultado) return;
+    agregarSubTrabajoAutomatico();
+}
 
-    let nombre = document.getElementById("nombreSub").value || "Sin nombre";
+function agregarSubTrabajoManual() {
+    const nombre = document.getElementById("nombreManualSub").value.trim() || "Sin nombre";
+    const unidad = document.getElementById("unidadManualSub").value;
+    const cantidad = parseFloat(document.getElementById("cantidadManualSub").value) || 0;
+    const precioUnitario = parseFloat(document.getElementById("precioManualSub").value) || 0;
+
+    if (cantidad <= 0 || precioUnitario <= 0) {
+        alert("Ingresa cantidad y precio válidos para el subtrabajo manual.");
+        return;
+    }
+
+    const materiales = {
+        m2: unidad === 'm2' ? cantidad : 0,
+        placas: parseFloat(document.getElementById("matPlacas").value) || 0,
+        soleras: parseFloat(document.getElementById("matSoleras").value) || 0,
+        montantes: parseFloat(document.getElementById("matMontantes").value) || 0,
+        maestras: parseFloat(document.getElementById("matMaestras").value) || 0,
+        tornillosT1: parseFloat(document.getElementById("matT1").value) || 0,
+        tornillosT2: parseFloat(document.getElementById("matT2").value) || 0,
+        tarugos: parseFloat(document.getElementById("matFijaciones").value) || 0,
+        masillaSR: parseFloat(document.getElementById("matMasillaSR").value) || 0,
+        masillaLPUkg: parseFloat(document.getElementById("matMasillaLPU").value) || 0,
+        cinta: parseFloat(document.getElementById("matCinta").value) || 0,
+        alambre: parseFloat(document.getElementById("matAlambre").value) || 0
+    };
 
     subTrabajos.push({
-        nombre: nombre,
-        materiales: { ...ultimoResultado }, // 👈 CLAVE
-        detalles: {
-            masillaLPU: ultimoResultado.masillaLPUdetalle
-        },
-        
+        nombre,
+        unidad,
+        cantidad,
+        precioUnitario,
+        materiales,
+        detalles: {}
     });
 
     renderSubTrabajos();
+    limpiarCamposSubTrabajo();
 }
+
+function agregarSubTrabajoAutomatico() {
+    calcular();
+    const nombre = document.getElementById("nombreAuto").value.trim() || "Cielorraso / Pared";
+    const precioUnitario = parseFloat(document.getElementById("precioM2").value) || 0;
+    const cantidad = (parseFloat(document.getElementById("largo").value) || 0) * (parseFloat(document.getElementById("ancho").value) || 0);
+
+    if (cantidad <= 0) {
+        alert("Ingresa las dimensiones válidas del ambiente para agregar el subtrabajo automático.");
+        return;
+    }
+    if (precioUnitario <= 0) {
+        alert("Ingresa el precio de mano de obra por m² en Gestión Comercial.");
+        return;
+    }
+    if (!ultimoResultado) {
+        alert("Calcula primero los materiales del cielorraso/pared antes de agregarlo como subtrabajo.");
+        return;
+    }
+
+    const materiales = {
+        m2: cantidad,
+        placas: ultimoResultado.placas || 0,
+        soleras: ultimoResultado.soleras || 0,
+        montantes: ultimoResultado.montantes || 0,
+        maestras: ultimoResultado.maestras || 0,
+        tornillosT1: ultimoResultado.tornillosT1 || 0,
+        tornillosT2: ultimoResultado.tornillosT2 || 0,
+        tarugos: ultimoResultado.tarugos || 0,
+        masillaSR: ultimoResultado.masillaSR || 0,
+        masillaLPUkg: ultimoResultado.masillaLPUkg || 0,
+        cinta: ultimoResultado.cinta || 0,
+        alambre: ultimoResultado.alambre || 0
+    };
+
+    subTrabajos.push({
+        nombre,
+        tipo: 'auto',
+        unidad: 'm2',
+        cantidad,
+        precioUnitario,
+        materiales,
+        detalles: {}
+    });
+
+    renderSubTrabajos();
+    limpiarCamposSubTrabajo();
+}
+
+function autoJobYaAgregado() {
+    const nombre = document.getElementById("nombreAuto").value.trim() || "Cielorraso / Pared";
+    const precioUnitario = parseFloat(document.getElementById("precioM2").value) || 0;
+    const cantidad = (parseFloat(document.getElementById("largo").value) || 0) * (parseFloat(document.getElementById("ancho").value) || 0);
+    return subTrabajos.some(st => st.tipo === 'auto' && st.nombre === nombre && st.precioUnitario === precioUnitario && st.cantidad === cantidad);
+}
+
 function renderSubTrabajos() {
     const contenedor = document.getElementById("listaSubtrabajos");
     const template = document.getElementById("tpl-subtrabajo");
 
     contenedor.innerHTML = "";
 
-    const precioM2 = parseFloat(document.getElementById("precioM2").value) || 0;
-
     subTrabajos.forEach((st, index) => {
-
         const clone = template.content.cloneNode(true);
-        const costo = st.materiales.m2 * precioM2;
+        const subtotal = st.cantidad * st.precioUnitario;
 
         clone.querySelector(".nombre").textContent = st.nombre;
-        clone.querySelector(".m2").textContent = `${st.materiales.m2.toFixed(2)} m²`;
-        clone.querySelector(".costo").textContent = `$ ${costo.toFixed(0)}`;
+        clone.querySelector(".m2").textContent = `${st.unidad === 'm2' ? st.cantidad.toFixed(2) + ' m²' : st.cantidad.toFixed(2) + ' m.l.'}`;
+        clone.querySelector(".costo").textContent = `$ ${subtotal.toFixed(2)}`;
+        clone.querySelector(".cantidad").textContent = `Cantidad: ${st.cantidad.toFixed(2)} ${st.unidad}`;
+        clone.querySelector(".precio").textContent = `Precio unidad: $ ${st.precioUnitario.toFixed(2)}`;
 
         clone.querySelector(".placas").textContent = `Placas: ${st.materiales.placas}`;
         clone.querySelector(".soleras").textContent = `Soleras: ${st.materiales.soleras}`;
         clone.querySelector(".montantes").textContent = `Montantes: ${st.materiales.montantes}`;
+        clone.querySelector(".maestras").textContent = `Maestras: ${st.materiales.maestras}`;
         clone.querySelector(".t1").textContent = `Tornillos T1: ${st.materiales.tornillosT1}`;
         clone.querySelector(".t2").textContent = `Tornillos T2: ${st.materiales.tornillosT2}`;
         clone.querySelector(".fijaciones").textContent = `Fijaciones: ${st.materiales.tarugos}`;
+        clone.querySelector(".masillaSR").textContent = `Masilla SR: ${st.materiales.masillaSR}`;
+        clone.querySelector(".masillaLPU").textContent = `Masilla LPU: ${st.materiales.masillaLPUkg.toFixed(2)}`;
+        clone.querySelector(".cinta").textContent = `Cinta: ${st.materiales.cinta.toFixed(2)}`;
+        clone.querySelector(".alambre").textContent = `Alambre: ${st.materiales.alambre.toFixed(2)}`;
 
         clone.querySelector(".btn-eliminar").onclick = () => eliminarSubTrabajo(index);
 
         contenedor.appendChild(clone);
     });
 }
+
+function limpiarCamposSubTrabajo() {
+    // --- AUTOMÁTICO ---
+    const autoIds = [
+        "largo",
+        "ancho",
+        "distancia",
+        "nombreAuto"
+    ];
+
+    autoIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    // --- MANUAL ---
+    const manualIds = [
+        "nombreManualSub",
+        "cantidadManualSub",
+        "precioManualSub",
+        "matPlacas",
+        "matSoleras",
+        "matMontantes",
+        "matMaestras",
+        "matT1",
+        "matT2",
+        "matFijaciones",
+        "matMasillaSR",
+        "matMasillaLPU",
+        "matCinta",
+        "matAlambre"
+    ];
+
+    manualIds.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+    });
+
+    // --- SELECT (unidad) ---
+    const unidad = document.getElementById("unidadManualSub");
+    if (unidad) unidad.value = "m2"; // valor por defecto
+
+    // --- RESULTADOS VISUALES ---
+    resetResultados();
+
+    // --- LIMPIAR CANVAS ---
+    const canvas2d = document.getElementById("canvas2d");
+    const canvas3d = document.getElementById("canvas3d");
+
+    if (canvas2d) {
+        const ctx = canvas2d.getContext("2d");
+        ctx.clearRect(0, 0, canvas2d.width, canvas2d.height);
+    }
+
+    if (canvas3d) {
+        const ctx = canvas3d.getContext("2d");
+        ctx.clearRect(0, 0, canvas3d.width, canvas3d.height);
+    }
+
+    // --- RESET RESULTADO INTERNO ---
+    ultimoResultado = null;
+}
+
+function toggleManualMateriales() {
+    const panel = document.getElementById("manual-materiales-panel");
+
+    if (panel.style.display === "grid") {
+        panel.style.display = "none";
+    } else {
+        panel.style.display = "grid"; // 🔥 ACÁ ESTÁ LA MAGIA
+    }
+}
+
 function calcularTotales() {
     let total = {
         m2: 0,
@@ -671,23 +851,21 @@ function calcularTotales() {
     };
 
     subTrabajos.forEach(st => {
-        let m = st.materiales;
-
-        total.m2 += m.m2;
-        total.placas += m.placas;
-        total.soleras += m.soleras;
-        total.montantes += m.montantes;
-        total.maestras += m.maestras;
-        total.tornillosT1 += m.tornillosT1;
-        total.tornillosT2 += m.tornillosT2;
-        total.tarugos += m.tarugos;
-        total.masillaSR += m.masillaSR;
-        total.masillaLPU += m.masillaLPUkg;
-        total.cinta += m.cinta;
-        total.alambre += m.alambre;
+        const m = st.materiales;
+        total.m2 += m.m2 || 0;
+        total.placas += m.placas || 0;
+        total.soleras += m.soleras || 0;
+        total.montantes += m.montantes || 0;
+        total.maestras += m.maestras || 0;
+        total.tornillosT1 += m.tornillosT1 || 0;
+        total.tornillosT2 += m.tornillosT2 || 0;
+        total.tarugos += m.tarugos || 0;
+        total.masillaSR += m.masillaSR || 0;
+        total.masillaLPU += m.masillaLPUkg || 0;
+        total.cinta += m.cinta || 0;
+        total.alambre += m.alambre || 0;
     });
 
-    // 👇 reutilizás TU lógica existente
     total.masillaLPUdetalle = calcularMasillaLPU(total.masillaLPU);
 
     return total;
@@ -696,3 +874,4 @@ function eliminarSubTrabajo(index) {
     subTrabajos.splice(index, 1);
     renderSubTrabajos();
 }
+
