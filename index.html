@@ -22,22 +22,104 @@
       <h2>1. Dimensiones del Ambiente</h2>
     </div>
     <div class="panel-body">
-      <div class="input-group">
-        <label for="largo">Largo (m):</label>
-        <input type="number" id="largo" step="0.01" placeholder="0.00" oninput="calcular()">
+      <div class="subpanel">
+        <div class="subpanel-header">
+          <h3>Automático - Cielorraso / Pared</h3>
+          <p class="subpanel-text">Ingresa los datos del ambiente para calcular automáticamente materiales y mano de obra de cielorraso o paredes.</p>
+        </div>
+        <div class="input-group">
+          <label for="nombreAuto">Nombre del trabajo:</label>
+          <input type="text" id="nombreAuto" placeholder="Ej: Cielorraso Sala" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="largo">Largo (m):</label>
+          <input type="number" id="largo" step="0.01" placeholder="0.00" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="ancho">Ancho (m):</label>
+          <input type="number" id="ancho" step="0.01" placeholder="0.00" oninput="calcular()">
+        </div>
+        <div class="input-group">
+          <label for="distancia">Distancia al techo (m):</label>
+          <input type="number" id="distancia" step="0.01" placeholder="0.00" oninput="calcular()">
+        </div>
       </div>
-      <div class="input-group">
-        <label for="ancho">Ancho (m):</label>
-        <input type="number" id="ancho" step="0.01" placeholder="0.00" oninput="calcular()">
+
+      <div class="subpanel">
+        <div class="subpanel-header">
+          <h3>Manual - Subtrabajos particulares</h3>
+          <p class="subpanel-text">Agrega tareas especiales como cajones, tabiques u otros trabajos que requieren ingresar materiales manualmente.</p>
+        </div>
+        <div class="input-group">
+          <label>Nombre del subtrabajo:</label>
+          <input type="text" id="nombreManualSub" placeholder="Ej: Cajón de cañería" />
+        </div>
+        <div class="input-group">
+          <label>Unidad:</label>
+          <select id="unidadManualSub">
+            <option value="m2">m²</option>
+            <option value="ml">m.l.</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Cantidad (m² o m.l.):</label>
+          <input type="number" id="cantidadManualSub" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="input-group">
+          <label>Precio por unidad:</label>
+          <input type="number" id="precioManualSub" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="input-group full-width">
+          <button type="button" class="btn-light" onclick="toggleManualMateriales()">Lista de materiales</button>
+        </div>
+        <div id="manual-materiales-panel" class="manual-materiales">
+          <div class="input-group">
+            <label>Placas:</label>
+            <input type="number" id="matPlacas" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Soleras:</label>
+            <input type="number" id="matSoleras" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Montantes:</label>
+            <input type="number" id="matMontantes" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Maestras:</label>
+            <input type="number" id="matMaestras" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Tornillos T1:</label>
+            <input type="number" id="matT1" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Tornillos T2:</label>
+            <input type="number" id="matT2" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Fijaciones:</label>
+            <input type="number" id="matFijaciones" step="1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Masilla SR (kg):</label>
+            <input type="number" id="matMasillaSR" step="0.1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Masilla LPU (kg):</label>
+            <input type="number" id="matMasillaLPU" step="0.1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Cinta (m):</label>
+            <input type="number" id="matCinta" step="0.1" min="0" placeholder="0" />
+          </div>
+          <div class="input-group">
+            <label>Alambre (m):</label>
+            <input type="number" id="matAlambre" step="0.1" min="0" placeholder="0" />
+          </div>
+        </div>
       </div>
-      <div class="input-group">
-        <label for="distancia">Distancia al techo (m):</label>
-        <input type="number" id="distancia" step="0.01" placeholder="0.00" oninput="calcular()">
-      </div>
-      <div class="input-group">
-  <label>Nombre del Subtrabajo:</label>
-  <input type="text" id="nombreSub" placeholder="Ej: Cocina">
-      </div>
+      <div class="separador"></div>
       <div class="controles-dibujo full-width">
         <button onclick="agregarSubTrabajo()">Agregar Subtrabajo</button>
       </div>
@@ -95,7 +177,7 @@
     <div class="panel-header">
       <h2>4. Gestión Comercial (PDF)</h2>
     </div>
-    <div class="panel-body">
+    <div class="panel-body comercial-grid">
       <div class="input-group">
         <label>Logo de Empresa:</label>
         <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="procesarLogo(this)">
@@ -134,12 +216,19 @@
     <div class="materiales-detalle">
       <small>Materiales:</small>
       <ul>
+        <li class="cantidad"></li>
+        <li class="precio"></li>
         <li class="placas"></li>
         <li class="soleras"></li>
         <li class="montantes"></li>
+        <li class="maestras"></li>
         <li class="t1"></li>
         <li class="t2"></li>
         <li class="fijaciones"></li>
+        <li class="masillaSR"></li>
+        <li class="masillaLPU"></li>
+        <li class="cinta"></li>
+        <li class="alambre"></li>
       </ul>
     </div>
   </div>
