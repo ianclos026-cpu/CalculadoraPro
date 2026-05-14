@@ -423,3 +423,16 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
   color: #888;
   font-size: 12px;
 }
+.footer {
+  text-align: center;
+  padding: 25px;
+  font-size: 14px;
+  color: #aaa;
+  border-top: 1px solid #eee;
+  margin-top: 40px;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.footer p {
+  margin: 0;
+}
