@@ -4,7 +4,7 @@ let modoPared = false;
 let mostrarPlacas = false;
 let subTrabajos = [];
 let ultimoResultado = null;
-
+let masillaLPUxm2 = 0.6; // kg por m² (ajustable para pruebas)
 function cambiarModo() {
     modoPared = !modoPared;
     const btn = document.getElementById("btnModo");
@@ -119,7 +119,7 @@ function calcular() {
     document.getElementById("tarugos").innerText = Math.ceil(metrosSoleraBase * 3.85);
 
     document.getElementById("masillaSR").innerText = (m2Real * 0.45).toFixed(1) + " kg";
-    let kgLPU = m2Real * 0.9;
+    let kgLPU = m2Real * masillaLPUxm2;
     let detalleLPU = calcularMasillaLPU(kgLPU);
 
     document.getElementById("masillaLPU").innerText = kgLPU.toFixed(1) + " kg";
@@ -163,45 +163,34 @@ function calcularMasillaLPU(kgNecesarios) {
         { tipo: "Bolsa 1.8 kg", kg: 1.8 }
     ];
 
-    let mejorSolucion = null;
-    let menorSobrante = Infinity;
+    let restante = kgNecesarios;
+    let resultado = {};
 
-    function buscar(index, kgActual, combinacion) {
-        if (kgActual >= kgNecesarios) {
-            let sobrante = kgActual - kgNecesarios;
-            if (sobrante < menorSobrante) {
-                menorSobrante = sobrante;
-                mejorSolucion = { ...combinacion };
-            }
-            return;
+    envases.forEach(env => {
+        if (restante <= 0) return;
+
+        let cantidad = Math.floor(restante / env.kg);
+
+        if (cantidad > 0) {
+            resultado[env.tipo] = cantidad;
+            restante -= cantidad * env.kg;
         }
+    });
 
-        if (index >= envases.length) return;
-
-        let env = envases[index];
-
-        // Probamos usar desde 0 hasta N unidades de este envase
-        for (let i = 0; i <= Math.ceil(kgNecesarios / env.kg) + 2; i++) {
-            combinacion[env.tipo] = i;
-            buscar(index + 1, kgActual + i * env.kg, combinacion);
-        }
-
-        combinacion[env.tipo] = 0;
+    // 🔥 Si quedó resto, le sumamos 1 del envase MÁS CHICO
+    if (restante > 0) {
+        const ultimo = envases[envases.length - 1];
+        resultado[ultimo.tipo] = (resultado[ultimo.tipo] || 0) + 1;
     }
 
-    buscar(0, 0, {});
-
-    // Generar texto final
+    // Armar texto
     let detalle = [];
-    for (let key in mejorSolucion) {
-        if (mejorSolucion[key] > 0) {
-            detalle.push(`${mejorSolucion[key]} x ${key}`);
-        }
+    for (let key in resultado) {
+        detalle.push(`${resultado[key]} x ${key}`);
     }
 
     return detalle.join(" + ");
 }
-
 function resetResultados() {
     const ids = ["m2", "placas", "soleras", "montantes", "maestras", "tornillosT1", "tornillosT2", "tarugos", "masillaSR", "masillaLPU", "cinta", "alambre"];
     ids.forEach(id => {
@@ -578,8 +567,10 @@ if (logoBase64) {
         const materiales = [
             ["Material", "Cantidad", "Detalle"],
             ["Placas de Yeso", total.placas, "Estandar, 1.20 x 2.40 m"],
-            ["Soleras", total.soleras, "Perfiles 35mm x 2.60 m"],
-            ["Montantes", total.montantes, "Perfiles 34mm x 2.60 m"],
+            ["Soleras 35mm", total.soleras, "Perfiles 35mm x 2.60 m"],
+            ["Soleras 70mm", total.soleras70, "Perfiles 70mm x 2.60 m"],
+            ["Montantes 35mm", total.montantes, "Perfiles 35mm x 2.60 m"],
+            ["Montantes 70mm", total.montantes70, "Perfiles 70mm x 2.60 m"],
             ["Maestras", total.maestras, "Perfiles 34mm x 2.60 m"],
             ["Tornillos T1", total.tornillosT1, "-"],
             ["Tornillos T2", total.tornillosT2, "-"],
@@ -610,6 +601,8 @@ function agregarSubTrabajo() {
     const manualNombre = document.getElementById("nombreManualSub").value.trim();
     const manualCantidad = parseFloat(document.getElementById("cantidadManualSub").value) || 0;
     const manualPrecio = parseFloat(document.getElementById("precioManualSub").value) || 0;
+    const tipoSolera = document.getElementById("tipoSolera").value;
+    const tipoMontante = document.getElementById("tipoMontante").value;
     const manualMateriales = [
         parseFloat(document.getElementById("matPlacas").value) || 0,
         parseFloat(document.getElementById("matSoleras").value) || 0,
@@ -621,20 +614,20 @@ function agregarSubTrabajo() {
         parseFloat(document.getElementById("matMasillaSR").value) || 0,
         parseFloat(document.getElementById("matMasillaLPU").value) || 0,
         parseFloat(document.getElementById("matCinta").value) || 0,
-        parseFloat(document.getElementById("matAlambre").value) || 0
+        parseFloat(document.getElementById("matAlambre").value) || 0,
     ];
     const manualTieneMateriales = manualMateriales.some(valor => valor > 0);
     const manualTieneDatos = manualTieneMateriales || (manualNombre && (manualCantidad > 0 || manualPrecio > 0));
 
     if (manualTieneDatos) {
-        agregarSubTrabajoManual();
+        agregarSubTrabajoManual(tipoSolera, tipoMontante);
         return;
     }
 
     agregarSubTrabajoAutomatico();
 }
 
-function agregarSubTrabajoManual() {
+function agregarSubTrabajoManual(tipoSolera, tipoMontante) {
     const nombre = document.getElementById("nombreManualSub").value.trim() || "Sin nombre";
     const unidad = document.getElementById("unidadManualSub").value;
     const cantidad = parseFloat(document.getElementById("cantidadManualSub").value) || 0;
@@ -644,12 +637,16 @@ function agregarSubTrabajoManual() {
         alert("Ingresa cantidad y precio válidos para el subtrabajo manual.");
         return;
     }
+    const solerasCantidad = parseFloat(document.getElementById("matSoleras").value) || 0;
+    const montantesCantidad = parseFloat(document.getElementById("matMontantes").value) || 0;
 
     const materiales = {
         m2: unidad === 'm2' ? cantidad : 0,
         placas: parseFloat(document.getElementById("matPlacas").value) || 0,
-        soleras: parseFloat(document.getElementById("matSoleras").value) || 0,
-        montantes: parseFloat(document.getElementById("matMontantes").value) || 0,
+        soleras: tipoSolera === "35" ? solerasCantidad : 0,     // 35mm
+        soleras70: tipoSolera === "70" ? solerasCantidad : 0,   // 70mm
+        montantes: tipoMontante === "35" ? montantesCantidad : 0,
+        montantes70: tipoMontante === "70" ? montantesCantidad : 0,
         maestras: parseFloat(document.getElementById("matMaestras").value) || 0,
         tornillosT1: parseFloat(document.getElementById("matT1").value) || 0,
         tornillosT2: parseFloat(document.getElementById("matT2").value) || 0,
@@ -743,10 +740,33 @@ function renderSubTrabajos() {
         clone.querySelector(".costo").textContent = `$ ${subtotal.toFixed(2)}`;
         clone.querySelector(".cantidad").textContent = `Cantidad: ${st.cantidad.toFixed(2)} ${st.unidad}`;
         clone.querySelector(".precio").textContent = `Precio unidad: $ ${st.precioUnitario.toFixed(2)}`;
-
         clone.querySelector(".placas").textContent = `Placas: ${st.materiales.placas}`;
-        clone.querySelector(".soleras").textContent = `Soleras: ${st.materiales.soleras}`;
-        clone.querySelector(".montantes").textContent = `Montantes: ${st.materiales.montantes}`;
+                // ✅ SOLERAS
+        if (st.materiales.soleras70 > 0) {
+            clone.querySelector(".soleras70").textContent =
+                `Soleras 70mm: ${st.materiales.soleras70}`;
+            const el35 = clone.querySelector(".soleras");
+            if (el35) el35.style.display = "none";
+        } else {
+            clone.querySelector(".soleras").textContent =
+                `Soleras 35mm: ${st.materiales.soleras}`;
+            const el70 = clone.querySelector(".soleras70");
+            if (el70) el70.style.display = "none";
+        }
+
+        // ✅ MONTANTES
+        if (st.materiales.montantes70 > 0) {
+            clone.querySelector(".montantes70").textContent =
+                `Montantes 70mm: ${st.materiales.montantes70}`;
+            const el35 = clone.querySelector(".montantes");
+            if (el35) el35.style.display = "none";
+        } else {
+            clone.querySelector(".montantes").textContent =
+                `Montantes 35mm: ${st.materiales.montantes}`;
+            const el70 = clone.querySelector(".montantes70");
+            if (el70) el70.style.display = "none";
+        }
+
         clone.querySelector(".maestras").textContent = `Maestras: ${st.materiales.maestras}`;
         clone.querySelector(".t1").textContent = `Tornillos T1: ${st.materiales.tornillosT1}`;
         clone.querySelector(".t2").textContent = `Tornillos T2: ${st.materiales.tornillosT2}`;
@@ -835,12 +855,17 @@ function toggleManualMateriales() {
 }
 
 function calcularTotales() {
+
     let total = {
         m2: 0,
         placas: 0,
         soleras: 0,
+        soleras70: 0,
         montantes: 0,
+        montantes70: 0,
         maestras: 0,
+        soleras70: 0,
+        montantes70: 0,
         tornillosT1: 0,
         tornillosT2: 0,
         tarugos: 0,
@@ -855,7 +880,9 @@ function calcularTotales() {
         total.m2 += m.m2 || 0;
         total.placas += m.placas || 0;
         total.soleras += m.soleras || 0;
+        total.soleras70 += m.soleras70 || 0;
         total.montantes += m.montantes || 0;
+        total.montantes70 += m.montantes70 || 0;
         total.maestras += m.maestras || 0;
         total.tornillosT1 += m.tornillosT1 || 0;
         total.tornillosT2 += m.tornillosT2 || 0;
