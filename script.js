@@ -5,6 +5,7 @@ let mostrarPlacas = false;
 let subTrabajos = [];
 let ultimoResultado = null;
 let masillaLPUxm2 = 0.6; // kg por m² (ajustable para pruebas)
+let alambrekgxm = 0.05; // kg por metro de alambre (ajustable para pruebas)
 function cambiarModo() {
     modoPared = !modoPared;
     const btn = document.getElementById("btnModo");
@@ -121,6 +122,7 @@ function calcular() {
     document.getElementById("masillaSR").innerText = (m2Real * 0.45).toFixed(1) + " kg";
     let kgLPU = m2Real * masillaLPUxm2;
     let detalleLPU = calcularMasillaLPU(kgLPU);
+    
 
     document.getElementById("masillaLPU").innerText = kgLPU.toFixed(1) + " kg";
     document.getElementById("masillaLPU").setAttribute("data-detalle", detalleLPU);
@@ -131,7 +133,8 @@ function calcular() {
     // Alambre: Cruces * (altura + 0.40m de nudo)
     let cantidadCruces = lineasM * maestras;
     let metrosAlambre = cantidadCruces * (h + 0.40);
-    document.getElementById("alambre").innerText = metrosAlambre.toFixed(1) + " m";
+    let kgAlambre = calcularKgAlambre(alambre);
+    document.getElementById("alambre").innerText = kgAlambre.toFixed(1) + " kg";
 
     // --- DIBUJOS ---
     dibujar2D(largo, ancho, lineasM, posicionesMaestras);
@@ -191,6 +194,10 @@ function calcularMasillaLPU(kgNecesarios) {
 
     return detalle.join(" + ");
 }
+function calcularKgAlambre(alambre) {
+    return alambre * alambrekgxm; // Aproximadamente 50g por metro de alambre
+}
+    
 function resetResultados() {
     const ids = ["m2", "placas", "soleras", "montantes", "maestras", "tornillosT1", "tornillosT2", "tarugos", "masillaSR", "masillaLPU", "cinta", "alambre"];
     ids.forEach(id => {
@@ -578,7 +585,7 @@ if (logoBase64) {
             ["Masilla Secado Rápido", total.masillaSR.toFixed(1) + " kg", "-"],
             ["Masilla LPU", total.masillaLPU.toFixed(1) + " kg", total.masillaLPUdetalle],
             ["Cinta Tramada", total.cinta.toFixed(1) + " m", "Metros lineales"],
-            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", "Metros lineales"]
+            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", total.alambreDetalle.toFixed(1) + " kg"]
         ];
 
         doc.autoTable({
@@ -894,7 +901,7 @@ function calcularTotales() {
     });
 
     total.masillaLPUdetalle = calcularMasillaLPU(total.masillaLPU);
-
+    total.alambreDetalle = calcularKgAlambre(total.alambre);
     return total;
 }
 function eliminarSubTrabajo(index) {
