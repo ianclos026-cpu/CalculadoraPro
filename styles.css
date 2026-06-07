@@ -436,3 +436,16 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
 .footer p {
   margin: 0;
 }
+
+.fila-label select {
+  width: 70px;        /* 🔥 tamaño fijo prolijo */
+  padding: 3px 6px;   /* más compacto */
+  font-size: 11px;
+}
+
+.fila-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
