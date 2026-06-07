@@ -66,7 +66,7 @@
           <input type="number" id="cantidadManualSub" step="0.01" placeholder="0.00" />
         </div>
         <div class="input-group">
-          <label>Precio x (m² o m.l.):</label>
+          <label>Precio por unidad:</label>
           <input type="number" id="precioManualSub" step="0.01" placeholder="0.00" />
         </div>
         <div class="input-group full-width">
@@ -78,12 +78,25 @@
             <input type="number" id="matPlacas" step="1" min="0" placeholder="0" />
           </div>
           <div class="input-group">
-            <label>Soleras:</label>
-            <input type="number" id="matSoleras" step="1" min="0" placeholder="0" />
+            <div class="fila-label">
+              <label>Soleras:</label>
+              <select id="tipoSolera">
+                <option value="35">35mm</option>
+                <option value="70">70mm</option>
+              </select>
+            </div>
+            <input type="number" id="matSoleras" step="1" min="0" placeholder="Cantidad" />
           </div>
+
           <div class="input-group">
-            <label>Montantes:</label>
-            <input type="number" id="matMontantes" step="1" min="0" placeholder="0" />
+            <div class="fila-label">
+              <label>Montantes:</label>
+              <select id="tipoMontante">
+                <option value="35">35mm</option>
+                <option value="70">70mm</option>
+              </select>
+            </div>
+            <input type="number" id="matMontantes" step="1" min="0" placeholder="Cantidad" />
           </div>
           <div class="input-group">
             <label>Maestras:</label>
@@ -221,6 +234,8 @@
         <li class="placas"></li>
         <li class="soleras"></li>
         <li class="montantes"></li>
+        <li class="soleras70"></li>
+        <li class="montantes70"></li>
         <li class="maestras"></li>
         <li class="t1"></li>
         <li class="t2"></li>
@@ -233,7 +248,7 @@
     </div>
   </div>
 </template>
-  <footer class="footer">
+<footer class="footer">
   <p>📍 Paraná, Entre Ríos, Argentina</p>
 </footer>
 </body>
