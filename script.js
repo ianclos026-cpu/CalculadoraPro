@@ -132,8 +132,8 @@ function calcular() {
 
     // Alambre: Cruces * (altura + 0.40m de nudo)
     let cantidadCruces = lineasM * maestras;
-    let metrosAlambre = cantidadCruces * (h + 0.40);
-    let kgAlambre = calcularKgAlambre(alambre);
+    let metrosAlambre = (cantidadCruces * (h + 0.40) );
+    let kgAlambre = calcularKgAlambre(metrosAlambre);
     document.getElementById("alambre").innerText = kgAlambre.toFixed(1) + " kg";
 
     // --- DIBUJOS ---
@@ -153,7 +153,8 @@ function calcular() {
     masillaLPUkg: kgLPU,
     masillaLPUdetalle: detalleLPU,
     cinta: (jLong + jTrans) * 1.1,
-    alambre: metrosAlambre
+    alambre: metrosAlambre,
+    cubreCantos: 0
 };
 }
 function calcularMasillaLPU(kgNecesarios) {
@@ -197,7 +198,10 @@ function calcularMasillaLPU(kgNecesarios) {
 function calcularKgAlambre(alambre) {
     return alambre * alambrekgxm; // Aproximadamente 50g por metro de alambre
 }
-    
+function calcularCubreCantos(metros) {
+    return Math.ceil(metros / 2.60); // Cada cubrecanto cubre 2.60 metros lineales c/u
+}
+
 function resetResultados() {
     const ids = ["m2", "placas", "soleras", "montantes", "maestras", "tornillosT1", "tornillosT2", "tarugos", "masillaSR", "masillaLPU", "cinta", "alambre"];
     ids.forEach(id => {
@@ -585,7 +589,8 @@ if (logoBase64) {
             ["Masilla Secado Rápido", total.masillaSR.toFixed(1) + " kg", "-"],
             ["Masilla LPU", total.masillaLPU.toFixed(1) + " kg", total.masillaLPUdetalle],
             ["Cinta Tramada", total.cinta.toFixed(1) + " m", "Metros lineales"],
-            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", total.alambreDetalle.toFixed(1) + " kg"]
+            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", total.alambreDetalle.toFixed(1) + " kg"],
+            ["Cubre Cantos", total.cubreCantos, "Cubre cantos 2.60 m"]
         ];
 
         doc.autoTable({
@@ -622,6 +627,7 @@ function agregarSubTrabajo() {
         parseFloat(document.getElementById("matMasillaLPU").value) || 0,
         parseFloat(document.getElementById("matCinta").value) || 0,
         parseFloat(document.getElementById("matAlambre").value) || 0,
+        parseFloat(document.getElementById("matCubreCantos").value) || 0
     ];
     const manualTieneMateriales = manualMateriales.some(valor => valor > 0);
     const manualTieneDatos = manualTieneMateriales || (manualNombre && (manualCantidad > 0 || manualPrecio > 0));
@@ -661,7 +667,8 @@ function agregarSubTrabajoManual(tipoSolera, tipoMontante) {
         masillaSR: parseFloat(document.getElementById("matMasillaSR").value) || 0,
         masillaLPUkg: parseFloat(document.getElementById("matMasillaLPU").value) || 0,
         cinta: parseFloat(document.getElementById("matCinta").value) || 0,
-        alambre: parseFloat(document.getElementById("matAlambre").value) || 0
+        alambre: parseFloat(document.getElementById("matAlambre").value) || 0,
+        cubreCantos: parseFloat(document.getElementById("matCubreCantos").value) || 0
     };
 
     subTrabajos.push({
@@ -708,7 +715,8 @@ function agregarSubTrabajoAutomatico() {
         masillaSR: ultimoResultado.masillaSR || 0,
         masillaLPUkg: ultimoResultado.masillaLPUkg || 0,
         cinta: ultimoResultado.cinta || 0,
-        alambre: ultimoResultado.alambre || 0
+        alambre: ultimoResultado.alambre || 0,
+        cubreCantos: ultimoResultado.cubreCantos || 0
     };
 
     subTrabajos.push({
@@ -778,10 +786,11 @@ function renderSubTrabajos() {
         clone.querySelector(".t1").textContent = `Tornillos T1: ${st.materiales.tornillosT1}`;
         clone.querySelector(".t2").textContent = `Tornillos T2: ${st.materiales.tornillosT2}`;
         clone.querySelector(".fijaciones").textContent = `Fijaciones: ${st.materiales.tarugos}`;
-        clone.querySelector(".masillaSR").textContent = `Masilla SR: ${st.materiales.masillaSR}`;
-        clone.querySelector(".masillaLPU").textContent = `Masilla LPU: ${st.materiales.masillaLPUkg.toFixed(2)}`;
-        clone.querySelector(".cinta").textContent = `Cinta: ${st.materiales.cinta.toFixed(2)}`;
-        clone.querySelector(".alambre").textContent = `Alambre: ${st.materiales.alambre.toFixed(2)}`;
+        clone.querySelector(".masillaSR").textContent = `Masilla SR [kg]: ${st.materiales.masillaSR}`;
+        clone.querySelector(".masillaLPU").textContent = `Masilla LPU [kg]: ${st.materiales.masillaLPUkg.toFixed(2)}`;
+        clone.querySelector(".cinta").textContent = `Cinta [m]: ${st.materiales.cinta.toFixed(2)}`;
+        clone.querySelector(".alambre").textContent = `Alambre [m]: ${st.materiales.alambre.toFixed(2)}`;
+        clone.querySelector(".cubreCantos").textContent = `Cubre Cantos [m]: ${st.materiales.cubreCantos}`;
 
         clone.querySelector(".btn-eliminar").onclick = () => eliminarSubTrabajo(index);
 
@@ -818,7 +827,8 @@ function limpiarCamposSubTrabajo() {
         "matMasillaSR",
         "matMasillaLPU",
         "matCinta",
-        "matAlambre"
+        "matAlambre",
+        "matCubreCantos"
     ];
 
     manualIds.forEach(id => {
@@ -879,7 +889,8 @@ function calcularTotales() {
         masillaSR: 0,
         masillaLPU: 0,
         cinta: 0,
-        alambre: 0
+        alambre: 0,
+        cubreCantos: 0
     };
 
     subTrabajos.forEach(st => {
@@ -898,12 +909,15 @@ function calcularTotales() {
         total.masillaLPU += m.masillaLPUkg || 0;
         total.cinta += m.cinta || 0;
         total.alambre += m.alambre || 0;
+        total.cubreCantos += m.cubreCantos || 0;
     });
 
     total.masillaLPUdetalle = calcularMasillaLPU(total.masillaLPU);
     total.alambreDetalle = calcularKgAlambre(total.alambre);
+    total.cubreCantos = calcularCubreCantos(total.cubreCantos);
     return total;
 }
+
 function eliminarSubTrabajo(index) {
     subTrabajos.splice(index, 1);
     renderSubTrabajos();
