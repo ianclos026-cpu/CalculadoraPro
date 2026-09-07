@@ -212,6 +212,27 @@
         <label>Precio Mano de Obra ($/m²):</label>
         <input type="number" id="precioM2" placeholder="0.00" oninput="guardarDatos(); calcular()">
       </div>
+  <div class="input-group full-width">
+    <label>Datos a mostrar en el presupuesto:</label>
+
+    <div class="checkbox-group">
+      <label>
+        <input type="checkbox" id="mostrarM2" checked>
+        Mostrar m²
+      </label>
+
+      <label>
+        <input type="checkbox" id="mostrarPrecioM2" checked>
+        Mostrar precio por m²
+      </label>
+
+      <label>
+        <input type="checkbox" id="mostrarSubtotal" checked>
+        Mostrar subtotal
+      </label>
+    </div>
+  </div>
+
       <div class="controles-dibujo full-width">
         <button onclick="generarPDF('presupuesto')" style="background: #e67e22;">Generar Presupuesto</button>
         <button onclick="generarPDF('compra')" style="background: #e67e22;">Orden de Compra</button>
