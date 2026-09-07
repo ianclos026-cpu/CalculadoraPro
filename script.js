@@ -518,92 +518,148 @@ if (logoBase64) {
 
     doc.addImage(logoBase64, 'PNG', 15, 10, width, height);
 }
-    
-    doc.setFontSize(18);
-    doc.text(empresa, 50, 20);
-    doc.setFontSize(10);
-    doc.text(`Fecha: ${fecha}`, 50, 27);
-    doc.text(`Cliente: ${cliente}`, 50, 34);
-    
-    doc.line(15, 45, 195, 45);
+    doc.setFontSize(18); 
+    doc.text(empresa, 50, 20); 
+    doc.setFontSize(10); 
+    doc.text(`Fecha: ${fecha}`, 50, 27); 
+    doc.text(`Cliente: ${cliente}`, 50, 34); 
+     
+    doc.line(15, 45, 195, 45); 
+ 
+    if (tipo === 'presupuesto') { 
+        doc.setFontSize(14); 
+        doc.text("PRESUPUESTO DE MANO DE OBRA", 15, 55); 
 
-    if (tipo === 'presupuesto') {
-        doc.setFontSize(14);
-        doc.text("PRESUPUESTO DE MANO DE OBRA", 15, 55);
-        
-        let filas = [];
-        subTrabajos.forEach(st => {
-            const subtotal = st.cantidad * st.precioUnitario;
-            const cantidadLabel = `${st.cantidad.toFixed(2)} ${st.unidad === 'm2' ? 'm²' : 'm.l.'}`;
-            const precioLabel = st.precioUnitario.toFixed(2) + " x " + (st.unidad === 'm2' ? 'm²' : 'm.l.');
+        // Obtener las opciones seleccionadas
+        const mostrarM2 = document.getElementById('mostrarM2').checked;
+        const mostrarPrecioM2 = document.getElementById('mostrarPrecioM2').checked;
+        const mostrarSubtotal = document.getElementById('mostrarSubtotal').checked;
+         
+        // Construir encabezado según las opciones seleccionadas
+        let encabezado = ["Descripción"];
 
-            filas.push([
-                st.nombre,
-                cantidadLabel,
-                "$ " + precioLabel,
-                "$ " + subtotal.toFixed(2)
-            ]);
-        });
+        if (mostrarM2) {
+            encabezado.push("Cantidad");
+        }
 
-        let totalFinal = subTrabajos.reduce((acc, st) => {
-            return acc + (st.cantidad * st.precioUnitario);
-        }, 0);
+        if (mostrarPrecioM2) {
+            encabezado.push("Precio x (m² o m.l.)");
+        }
 
-        filas.push([
-            "TOTAL",
-            "",
-            "",
-            "$ " + totalFinal.toFixed(2)
-        ]);
+        if (mostrarSubtotal) {
+            encabezado.push("Subtotal");
+        }
 
-        doc.autoTable({
-            startY: 65,
-            head: [["Descripción", "Cantidad", "Precio x (m² o m.l.)", "Subtotal"]],
-            body: filas,
-            theme: 'striped',
-            headStyles: { fillColor: [230, 126, 34] }
-        });
+        // Construir filas
+        let filas = []; 
 
-        const finalY = doc.lastAutoTable.finalY + 10;
-        doc.setFontSize(12);
-        doc.setFont(undefined, 'bold');
-        doc.text(`TOTAL PRESUPUESTO: $ ${totalFinal.toFixed(2)}`, 195, finalY, { align: 'right' });
+        subTrabajos.forEach(st => { 
+            const subtotal = st.cantidad * st.precioUnitario; 
+            const cantidadLabel = `${st.cantidad.toFixed(2)} ${st.unidad === 'm2' ? 'm²' : 'm.l.'}`; 
+            const precioLabel = st.precioUnitario.toFixed(2) + " x " + (st.unidad === 'm2' ? 'm²' : 'm.l.'); 
 
-    } else {
-        doc.setFontSize(14);
-        doc.text("ORDEN DE COMPRA DE MATERIALES", 15, 55);
-        
-        let total = calcularTotales();
+            let fila = [st.nombre];
 
-        const materiales = [
-            ["Material", "Cantidad", "Detalle"],
-            ["Placas de Yeso", total.placas, "Estandar, 1.20 x 2.40 m"],
-            ["Soleras 35mm", total.soleras, "Perfiles 35mm x 2.60 m"],
-            ["Soleras 70mm", total.soleras70, "Perfiles 70mm x 2.60 m"],
-            ["Montantes 35mm", total.montantes, "Perfiles 35mm x 2.60 m"],
-            ["Montantes 70mm", total.montantes70, "Perfiles 70mm x 2.60 m"],
-            ["Maestras", total.maestras, "Perfiles 34mm x 2.60 m"],
-            ["Tornillos T1", total.tornillosT1, "-"],
-            ["Tornillos T2", total.tornillosT2, "-"],
-            ["Tarugo Nylon c/tope + Tornillo.", total.tarugos, "N° 6"],
-            ["Masilla Secado Rápido", total.masillaSR.toFixed(1) + " kg", "-"],
-            ["Masilla LPU", total.masillaLPU.toFixed(1) + " kg", total.masillaLPUdetalle],
-            ["Cinta Tramada", total.cinta.toFixed(1) + " m", "Metros lineales"],
-            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", total.alambreDetalle.toFixed(1) + " kg"],
-            ["Cubre Cantos", total.cubreCantos, "Cubre cantos 2.60 m"]
-        ];
+            if (mostrarM2) {
+                fila.push(cantidadLabel);
+            }
 
-        doc.autoTable({
-            startY: 65,
-            head: [["Material", "Cantidad", "Observaciones"]],
-            body: materiales.slice(1),
-            theme: 'grid',
-            headStyles: { fillColor: [41, 128, 185] }
-        });
-        
-    }
+            if (mostrarPrecioM2) {
+                fila.push("$ " + precioLabel);
+            }
 
-    doc.save(`${tipo}_${cliente.replace(/\s+/g, '_')}.pdf`);
+            if (mostrarSubtotal) {
+                fila.push("$ " + subtotal.toFixed(2));
+            }
+
+            filas.push(fila);
+        }); 
+         
+        // Calcular total
+        let totalFinal = subTrabajos.reduce((acc, st) => { 
+            return acc + (st.cantidad * st.precioUnitario); 
+        }, 0); 
+         
+        // Fila TOTAL
+        let filaTotal = ["TOTAL"];
+
+        if (mostrarM2) {
+            filaTotal.push("");
+        }
+
+        if (mostrarPrecioM2) {
+            filaTotal.push("");
+        }
+
+        if (mostrarSubtotal) {
+            filaTotal.push("$ " + totalFinal.toFixed(2));
+        }
+
+        filas.push(filaTotal);
+         
+        // Generar tabla
+        doc.autoTable({ 
+            startY: 65, 
+            head: [encabezado], 
+            body: filas, 
+            theme: 'striped', 
+            headStyles: { fillColor: [230, 126, 34] },
+
+            // Solo alinear a la derecha la columna Subtotal
+            columnStyles: mostrarSubtotal
+                ? {
+                    [encabezado.indexOf("Subtotal")]: {
+                        halign: 'right'
+                    }
+                }
+                : {}
+        }); 
+         
+        const finalY = doc.lastAutoTable.finalY + 10; 
+        doc.setFontSize(12); 
+        doc.setFont(undefined, 'bold'); 
+        doc.text(
+            `TOTAL PRESUPUESTO: $ ${totalFinal.toFixed(2)}`, 
+            195, 
+            finalY, 
+            { align: 'right' }
+        ); 
+         
+    } else { 
+        doc.setFontSize(14); 
+        doc.text("ORDEN DE COMPRA DE MATERIALES", 15, 55); 
+         
+        let total = calcularTotales(); 
+         
+        const materiales = [ 
+            ["Material", "Cantidad", "Detalle"], 
+            ["Placas de Yeso", total.placas, "Estandar, 1.20 x 2.40 m"], 
+            ["Soleras 35mm", total.soleras, "Perfiles 35mm x 2.60 m"], 
+            ["Soleras 70mm", total.soleras70, "Perfiles 70mm x 2.60 m"], 
+            ["Montantes 35mm", total.montantes, "Perfiles 35mm x 2.60 m"], 
+            ["Montantes 70mm", total.montantes70, "Perfiles 70mm x 2.60 m"], 
+            ["Maestras", total.maestras, "Perfiles 34mm x 2.60 m"], 
+            ["Tornillos T1", total.tornillosT1, "-"], 
+            ["Tornillos T2", total.tornillosT2, "-"], 
+            ["Tarugo Nylon c/tope + Tornillo.", total.tarugos, "N° 6"], 
+            ["Masilla Secado Rápido", total.masillaSR.toFixed(1) + " kg", "-"], 
+            ["Masilla LPU", total.masillaLPU.toFixed(1) + " kg", total.masillaLPUdetalle], 
+            ["Cinta Tramada", total.cinta.toFixed(1) + " m", "Metros lineales"], 
+            ["Alambre Galvanizado", total.alambre.toFixed(1) + " m", total.alambreDetalle.toFixed(1) + " kg"], 
+            ["Cubre Cantos", total.cubreCantos, "Cubre cantos 2.60 m"] 
+        ]; 
+         
+        doc.autoTable({ 
+            startY: 65, 
+            head: [["Material", "Cantidad", "Observaciones"]], 
+            body: materiales.slice(1), 
+            theme: 'grid', 
+            headStyles: { fillColor: [41, 128, 185] } 
+        }); 
+         
+    } 
+     
+    doc.save(`${tipo}_${cliente.replace(/\s+/g, '_')}.pdf`); 
 }
 function guardarDatos() {
     localStorage.setItem('nombreEmpresa', document.getElementById('nombreEmpresa').value);
