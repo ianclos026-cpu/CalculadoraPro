@@ -449,3 +449,25 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
   justify-content: space-between;
 }
 
+/* Opciones de visualización del presupuesto */
+.checkbox-group {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.checkbox-group label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
