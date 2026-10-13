@@ -471,3 +471,141 @@ canvas { background: #fff; border: 1px solid #eee; width: 100%; height: auto; }
   cursor: pointer;
 }
 
+/* ===== TARJETA DE DESCARGA CON FONDO BLANCO ===== */
+.card-descarga-ui {
+  background: #ffffff; /* Fondo blanco */
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.card-descarga-ui h3 {
+  margin: 0 0 6px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.subtitulo-descarga {
+  margin: 0 0 20px 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+/* Botón Desplegable */
+.dropdown-descarga {
+  position: relative;
+  width: 100%;
+  margin-bottom: 20px;
+}
+
+.btn-dropdown-main {
+  width: 100%;
+  background: var(--accent); /* Naranja corporativo de tu web */
+  color: white;
+  border: none;
+  padding: 14px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+  font-family: 'Montserrat', sans-serif;
+  text-transform: uppercase;
+}
+
+.btn-dropdown-main:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+.flecha-icon {
+  font-size: 10px;
+  margin-left: 10px;
+}
+
+/* Contenido del Menú Desplegable */
+.dropdown-content {
+  display: none;
+  position: absolute;
+  top: 105%;
+  left: 0;
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.dropdown-content a {
+  color: var(--text);
+  padding: 12px 18px;
+  text-decoration: none;
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.dropdown-content a:hover {
+  background: #f1f5f9;
+  color: var(--accent);
+}
+
+.dropdown-content.show {
+  display: block;
+}
+
+/* Tarjetas PDF y Word */
+.cards-formato-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+.card-formato {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 18px 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.card-formato:hover {
+  border-color: var(--accent);
+  transform: translateY(-2px);
+  background: #fff;
+  box-shadow: 0 6px 15px rgba(230, 126, 34, 0.1);
+}
+
+.icon-formato {
+  font-size: 24px;
+  margin-bottom: 6px;
+}
+
+.titulo-formato {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 3px;
+}
+
+.sub-formato {
+  font-size: 11px;
+  color: #64748b;
+}
+
+@media (max-width: 500px) {
+  .cards-formato-grid {
+    grid-template-columns: 1fr;
+  }
+}
