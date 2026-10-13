@@ -190,55 +190,76 @@
     </div>
   </div>
 
-  <div class="panel">
-    <div class="panel-header">
-      <h2>4. Gestión Comercial (PDF)</h2>
-    </div>
-    <div class="panel-body comercial-grid">
-      <div class="input-group">
-        <label>Logo de Empresa:</label>
-        <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="procesarLogo(this)">
-        <div id="previewLogo" style="margin-top:10px; max-width: 100px;"></div>
-      </div>
-      <div class="input-group">
-        <label>Nombre Empresa:</label>
-        <input type="text" id="nombreEmpresa" placeholder="Tu Empresa" oninput="guardarDatos()">
-      </div>
-      <div class="input-group">
-        <label>Cliente:</label>
-        <input type="text" id="nombreCliente" placeholder="Nombre del cliente">
-      </div>
-      <div class="input-group">
-        <label>Precio Mano de Obra ($/m²):</label>
-        <input type="number" id="precioM2" placeholder="0.00" oninput="guardarDatos(); calcular()">
-      </div>
-  <div class="input-group full-width">
-    <label>Datos a mostrar en el presupuesto:</label>
-
-    <div class="checkbox-group">
-      <label>
-        <input type="checkbox" id="mostrarM2" checked>
-        Mostrar m²
-      </label>
-
-      <label>
-        <input type="checkbox" id="mostrarPrecioM2" checked>
-        Mostrar precio por m²
-      </label>
-
-      <label>
-        <input type="checkbox" id="mostrarSubtotal" checked>
-        Mostrar subtotal
-      </label>
-    </div>
+<div class="panel">
+  <div class="panel-header">
+    <h2>4. Gestión Comercial</h2>
   </div>
-
-      <div class="controles-dibujo full-width">
-        <button onclick="generarPDF('presupuesto')" style="background: #e67e22;">Generar Presupuesto</button>
-        <button onclick="generarPDF('compra')" style="background: #e67e22;">Orden de Compra</button>
+  <div class="panel-body comercial-grid">
+    <div class="input-group">
+      <label>Logo de Empresa:</label>
+      <input type="file" id="logoInput" accept="image/png, image/jpeg" onchange="procesarLogo(this)">
+      <div id="previewLogo" style="margin-top:10px; max-width: 100px;"></div>
+    </div>
+    <div class="input-group">
+      <label>Nombre Empresa:</label>
+      <input type="text" id="nombreEmpresa" placeholder="Tu Empresa" oninput="guardarDatos()">
+    </div>
+    <div class="input-group">
+      <label>Cliente:</label>
+      <input type="text" id="nombreCliente" placeholder="Nombre del cliente">
+    </div>
+    <div class="input-group">
+      <label>Precio Mano de Obra ($/m²):</label>
+      <input type="number" id="precioM2" placeholder="0.00" oninput="guardarDatos(); calcular()">
+    </div>
+    <div class="input-group full-width">
+      <label>Datos a mostrar en el presupuesto:</label>
+      <div class="checkbox-group">
+        <label><input type="checkbox" id="mostrarM2" checked> Mostrar m²</label>
+        <label><input type="checkbox" id="mostrarPrecioM2" checked> Mostrar precio por m²</label>
+        <label><input type="checkbox" id="mostrarSubtotal" checked> Mostrar subtotal</label>
       </div>
     </div>
+
+    <!-- TARJETA DE DESCARGA CON DESPLEGABLE -->
+    <div class="input-group full-width card-descarga-ui">
+      <h3 id="tituloDocSeleccionado">Presupuesto de mano de obra</h3>
+      <p class="subtitulo-descarga">Elegí el formato en el que querés descargar el documento.</p>
+
+      <!-- Botón principal con Menú Desplegable -->
+      <div class="dropdown-descarga">
+        <button type="button" class="btn-dropdown-main" onclick="toggleDropdown()">
+          <span id="textoBtnDropdown"> Descargar presupuesto </span>
+          <span class="flecha-icon">▼</span>
+        </button>
+        <div id="menuDropdown" class="dropdown-content">
+          <a href="#" onclick="cambiarTipoDocumento('presupuesto', 'Presupuesto de mano de obra', 'Descargar presupuesto'); return false;">
+             Presupuesto de mano de obra
+          </a>
+          <a href="#" onclick="cambiarTipoDocumento('compra', 'Orden de compra de materiales', 'Descargar orden de compra'); return false;">
+             Orden de compra de materiales
+          </a>
+        </div>
+      </div>
+
+      <!-- Tarjetas de Formato (PDF / Word) -->
+      <div class="cards-formato-grid">
+        <div class="card-formato pdf" onclick="descargarFormato('pdf')">
+          <div class="icon-formato">📄</div>
+          <div class="titulo-formato">PDF</div>
+          <div class="sub-formato">Listo para enviar</div>
+        </div>
+
+        <div class="card-formato word" onclick="descargarFormato('word')">
+          <div class="icon-formato">📝</div>
+          <div class="titulo-formato">Word</div>
+          <div class="sub-formato">Editable</div>
+        </div>
+      </div>
+    </div>
+
   </div>
+</div>
 </div> <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 <script src="script.js"></script>
